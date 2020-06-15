@@ -1,0 +1,37 @@
+.option-head{
+    margin: 30px 20px;
+}
+.option-head-button{
+    margin: 0px 20px;
+}
+.pod {
+    position: relative;
+}
+
+.btnUpdate {
+    position: absolute;
+    top: 0;
+    right: 200px;
+}
+
+.pod .CodeMirror {
+    border: 1px solid #eee;
+    height: 650px;
+}
+
+.map .CodeMirror {
+    border: 1px solid #eee;
+    height: 500px;
+}
+
+.pod .CodeMirror-scroll {
+    height: 650px;
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+
+.map .CodeMirror-scroll {
+    height: 500px;
+    overflow-y: hidden;
+    overflow-x: auto;
+}

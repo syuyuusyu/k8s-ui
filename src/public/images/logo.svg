@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+<style type="text/css">
+	.logo-back{fill:#2267AC;}
+	.logo-front{fill:#FFFFFF;}
+</style>
+<path class="logo-back" d="M44,13c-4.5,0-8.6,1.5-12,4c-3.3-2.5-7.5-4-12-4c-11,0-20,9-20,20c0,11,9,20,20,20
+	c4.5,0,8.6-1.5,12-4c3.3,2.5,7.5,4,12,4c11,0,20-9,20-20C64,21.9,55,13,44,13z"/>
+<path class="logo-front" d="M25.4,40.5h-7.2c-0.7-1.6-1.1-3.3-1.3-5h7.2c-0.1-0.8-0.2-1.7-0.2-2.5s0.1-1.7,0.2-2.5h-7.2
+	c0.2-1.7,0.6-3.4,1.3-5h7.2c0.7-1.8,1.7-3.5,2.9-5h-7.2h-3.7h-2.4c-2.1,3.7-3.3,8-3.3,12.5s1.2,8.8,3.3,12.5h2.1h4h7.2
+	C27.1,44,26.1,42.3,25.4,40.5z"/>
+<circle class="logo-front" cx="32" cy="33" r="2.5"/>
+<circle class="logo-front" cx="46.6" cy="33" r="7.5"/>
+</svg>
