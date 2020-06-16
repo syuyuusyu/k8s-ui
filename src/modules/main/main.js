@@ -38,13 +38,9 @@ import "swagger-ui-react/swagger-ui.css"
 import { host } from '../../config/api'
 
 import {
-    AppstoreOutlined,
     MenuUnfoldOutlined,
     MenuFoldOutlined,
-    PieChartOutlined,
-    DesktopOutlined,
-    ContainerOutlined,
-    MailOutlined,
+
 } from '@ant-design/icons';
 
 

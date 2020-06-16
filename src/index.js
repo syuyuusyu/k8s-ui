@@ -24,3 +24,19 @@ ReactDOM.render(
     document.getElementById('app')
 );
 
+// export default class K8sUi extends React.Component {
+
+//     render() {
+
+//         return (
+//             <Provider rootStore={new RootStore(history)} >
+//                 <Router history={history}>
+//                     <Main />
+//                 </Router>
+//             </Provider>
+//         )
+
+//     }
+
+// }
+
