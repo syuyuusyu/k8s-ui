@@ -9,7 +9,7 @@ import RootStore from './config/rootStore';
 import { Main } from './modules/main'
 
 
-
+console.log(Main)
 const history = createBrowserHistory();
 
 

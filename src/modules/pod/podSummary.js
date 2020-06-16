@@ -20,6 +20,7 @@ import 'codemirror/addon/hint/show-hint.js';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
+import 'codemirror/theme/idea.css';
 import '../codeMirrorStyle.css';
 
 
@@ -254,7 +255,7 @@ class PodYaml extends Component {
                     options={
                         {
                             mode: 'yaml',
-                            theme: 'material',
+                            theme: 'idea',
                             lineNumbers: true
                         }
                     }

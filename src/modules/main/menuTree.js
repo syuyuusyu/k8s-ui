@@ -24,7 +24,6 @@ class MenuTree extends Component {
     // <img style={{ paddingRight: '10px' }} src={`data:image/svg+xml;base64,${new Buffer(item.icon).toString('base64')}`} /> : <Icon type={item.icon} />}
     renderTree = (data) => {
         return data.map(item => {
-            console.log(item.icon)
             const title = item.path
                 ?
                 <Link to={item.path}>
@@ -54,7 +53,7 @@ class MenuTree extends Component {
                 <Menu onClick={store.onMenuClick} theme='light' mode="inline"
                     defaultSelectedKeys={['node']}
                     defaultOpenKeys={['application', 'cluster']}
-                    inlineCollapsed={store.collapsed}
+                //inlineCollapsed={store.collapsed}
                 >
                     {/* <Menu.Item key='home'><Link to='/home'><HomeOutlined /> <span>首页</span></Link></Menu.Item> */}
                     {

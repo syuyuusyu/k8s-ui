@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Layout, Menu, Icon, Popover, Tooltip, Row, Col, Breadcrumb, notification, Select, Tag, Button
+    Layout, Menu, Popover, Tooltip, Row, Col, Breadcrumb, notification, Select, Tag, Button, Drawer
 } from 'antd';
 const { Header, Sider, Content } = Layout;
 const { Option } = Select
@@ -32,6 +32,7 @@ import { RTable, RTabs } from '../role'
 import { RbTable, RbTabs } from '../rolebind'
 import { CrTable, CrTabs } from '../crole'
 import { CrbTable, CrbTabs } from '../crolebind'
+import { CreateTab } from '../create'
 
 import SwaggerUI from "swagger-ui-react"
 import "swagger-ui-react/swagger-ui.css"
@@ -40,6 +41,7 @@ import { host } from '../../config/api'
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
+    CodeOutlined
 
 } from '@ant-design/icons';
 
@@ -68,6 +70,7 @@ class Main extends Component {
         super(props);
         this.state = {
             collapsed: false,
+            createVisible: false
         }
     }
 
@@ -107,22 +110,21 @@ class Main extends Component {
                     <Header style={{ background: '#fff', padding: 6 }}>
                         <Row gutter={24}>
                             <Col span={2}>
-                                <Button type="primary" onClick={menuStore.toggleCollapsed} style={{ marginBottom: 16 }}>
+                                <Button type="primary" onClick={menuStore.toggleCollapsed} >
                                     {React.createElement(menuStore.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined)}
                                 </Button>
                             </Col>
                             <Col span={14} >
 
                                 <Breadcrumb style={{ margin: '20px 4px' }}>
-                                    < Breadcrumb.Item ><Icon type="code" /> </Breadcrumb.Item>
+                                    < Breadcrumb.Item > <CodeOutlined /></Breadcrumb.Item>
                                     {
                                         menuStore.currentRoute
                                             .filter(d => d).map((r, index) => {
                                                 if (r.path) {
-                                                    return <Breadcrumb.Item key={r.code}><Tag color="success"><Link onClick={this.props.rootStore.menuStore.resetBreadcrumb(index)} to={r.path}>{r.text}</Link></Tag></Breadcrumb.Item>
+                                                    return <Breadcrumb.Item key={r.code}><Tag color="success"><Link onClick={this.props.rootStore.menuStore.resetBreadcrumb(index)} to={r.path}>{!r.icon ? '' : React.createElement(require('../../config/icon')[r.icon])}{r.text}</Link></Tag></Breadcrumb.Item>
                                                 }
-                                                return <Breadcrumb.Item
-                                                    key={r.code}>{r.text}</Breadcrumb.Item>
+                                                return <Breadcrumb.Item key={r.code}>{!r.icon ? '' : React.createElement(require('../../config/icon')[r.icon])}{r.text}</Breadcrumb.Item>
                                             })
                                     }
                                 </Breadcrumb>
@@ -131,6 +133,11 @@ class Main extends Component {
                                 <Select onChange={store.nsChange} value={store.currentNamespace} style={{ width: 200 }}
                                     options={toJS(store.allNamespace).map(n => ({ label: n, value: n }))}
                                 />
+                            </Col>
+                            <Col span={2}>
+                                <Button type="primary" onClick={() => { this.setState({ createVisible: true }) }} >
+                                    新建
+                                </Button>
                             </Col>
                         </Row>
                     </Header>
@@ -214,7 +221,18 @@ class Main extends Component {
                     </Content>
 
                 </Layout>
-            </Layout>
+                <Drawer
+                    title="新建资源"
+                    placement="right"
+                    closable={false}
+                    width={1200}
+                    closable={true}
+                    onClose={() => { this.setState({ createVisible: false }) }}
+                    visible={this.state.createVisible}
+                >
+                    <CreateTab />
+                </Drawer>
+            </Layout >
 
         );
 

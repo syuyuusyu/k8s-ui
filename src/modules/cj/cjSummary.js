@@ -21,6 +21,8 @@ import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
 import '../codeMirrorStyle.css';
 
+import { CjIcon } from '../../config/icon'
+
 
 @inject('rootStore')
 @observer
@@ -152,7 +154,7 @@ class CjTabs extends Component {
         if (this.state.shouldgo) {
             return (
                 <div>
-                    <Tag color="#108ee9">CronJob {store.currentElement.metadata.name}</Tag>
+                    <Tag color="#108ee9"><CjIcon />CronJob {store.currentElement.metadata.name}</Tag>
                     <Tabs defaultActiveKey="1" tabBarExtraContent={operations}>
                         <TabPane tab="Summary" key="1">
                             <CjSummary />

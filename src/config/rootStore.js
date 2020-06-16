@@ -22,6 +22,7 @@ import { RStore } from '../modules/role'
 import { CrStore } from '../modules/crole'
 import { RbStore } from '../modules/rolebind'
 import { CrbStore } from '../modules/crolebind'
+import { CreateStore } from '../modules/create'
 
 export default class RootStore {
 
@@ -52,6 +53,7 @@ export default class RootStore {
         this.rbStore = new RbStore(this)
         this.crStore = new CrStore(this)
         this.crbStore = new CrbStore(this)
+        this.createStore = new CreateStore(this)
     }
 
     storeMap = {

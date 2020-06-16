@@ -23,6 +23,8 @@ import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
 import '../codeMirrorStyle.css';
 
+import { CmIcon } from '../../config/icon'
+
 
 
 @inject('rootStore')
@@ -203,7 +205,7 @@ class CmTabs extends Component {
                     >
                         <span>{`确认删除字段 ${store.dataName} ?`}</span>
                     </Modal>
-                    <Tag color="#108ee9">ConfigMap {store.currentElement.metadata.name}</Tag>
+                    <Tag color="#108ee9"><CmIcon />ConfigMap {store.currentElement.metadata.name}</Tag>
                     <Tabs defaultActiveKey="1"
                         tabBarExtraContent={operations}
                         type="editable-card"
