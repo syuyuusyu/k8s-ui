@@ -21,6 +21,7 @@ import 'codemirror/addon/hint/show-hint.js';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
+import 'codemirror/theme/idea.css';
 import '../codeMirrorStyle.css';
 
 import { CmIcon } from '../../config/icon'
@@ -87,16 +88,16 @@ class DataYaml extends Component {
         return (
 
             <div className={'pod'}>
-                <Row>
-                    <Col><Button onClick={this.updateDate}>更新</Button></Col>
-                </Row>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button onClick={store.update}>更新</Button>
+                </div>
                 <CodeMirror
                     style={{ height: '700px', paddingBottom: '20px' }}
                     value={store.currentData}
                     options={
                         {
                             mode: 'yaml',
-                            theme: 'material',
+                            theme: 'idea',
                             lineNumbers: true
                         }
                     }
