@@ -6,7 +6,6 @@ const { TabPane } = Tabs;
 import YAML from 'yaml';
 import { Link, } from 'react-router-dom';
 import { nsUrl, host } from '../config/api'
-import { def } from './def'
 import { get, post } from '../config/util'
 
 import { Pos } from 'codemirror';
@@ -92,7 +91,7 @@ class CreateStore {
 
     loadDefinitions = async () => {
         //let json = await get(`${host}/kube/api/definitions`)
-        this.apiDefinitions = def
+        //this.apiDefinitions = def
     }
 
     valideCode = (edit) => {
@@ -178,7 +177,6 @@ class CreateStore {
 
     save = () => {
         if (!this.valideCode()) return
-        console.log(this.yamlJson)
         const ns = this.rootStore.columnStore.currentNamespace
         this.yamlJson.forEach(async (v) => {
             let kind = v.kind

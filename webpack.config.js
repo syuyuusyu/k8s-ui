@@ -7,6 +7,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJsWebpackPlugin = require('uglifyjs-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 
 /* less全局变量（主要为了重置antd的less全局变量） */
 const lessModifyVars = require('./src/config/less.js');
@@ -41,7 +42,7 @@ const config = {
             {
                 test: /\.(jpg|png|svg|gif|ico|mp4)$/,
                 use: [
-                    {loader: 'file-loader', options: {outputPath: 'static'}}
+                    { loader: 'file-loader', options: { outputPath: 'static' } }
                 ]
             }
         ]
@@ -81,11 +82,11 @@ if (process.env.NODE_ENV === 'development') {
     config.module.rules.push({
         test: /\.(le|c)ss$/,
         use: [
-            {loader: 'style-loader'},
+            { loader: 'style-loader' },
             'css-loader',
             {
                 loader: 'less-loader',
-                options: {javascriptEnabled: true, modifyVars: lessModifyVars}
+                options: { javascriptEnabled: true, modifyVars: lessModifyVars }
             }
         ]
     });
@@ -105,6 +106,11 @@ if (process.env.NODE_ENV === 'production') {
             to: 'antd_icon_font', toType: 'dir'
         }
     ]));
+    plugins.push(
+        new AddAssetHtmlPlugin({
+            filepath: path.resolve(__dirname, 'src/global.js')
+        })
+    );
 
     optimization.runtimeChunk = 'single';
     optimization.splitChunks = {
@@ -132,11 +138,11 @@ if (process.env.NODE_ENV === 'production') {
     config.module.rules.push({
         test: /\.(le|c)ss$/,
         use: [
-            {loader: MiniCssExtractPlugin.loader},
+            { loader: MiniCssExtractPlugin.loader },
             'css-loader',
             {
                 loader: 'less-loader',
-                options: {javascriptEnabled: true, modifyVars: lessModifyVars}
+                options: { javascriptEnabled: true, modifyVars: lessModifyVars }
             }
         ]
     });

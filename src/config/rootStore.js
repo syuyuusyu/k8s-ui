@@ -23,6 +23,8 @@ import { CrStore } from '../modules/crole'
 import { RbStore } from '../modules/rolebind'
 import { CrbStore } from '../modules/crolebind'
 import { CreateStore } from '../modules/create'
+import { LimitsStore } from '../modules/limits'
+import { QuotaStore } from '../modules/quota'
 
 export default class RootStore {
 
@@ -54,6 +56,8 @@ export default class RootStore {
         this.crStore = new CrStore(this)
         this.crbStore = new CrbStore(this)
         this.createStore = new CreateStore(this)
+        this.limitsStore = new LimitsStore(this)
+        this.quotaStore = new QuotaStore(this)
     }
 
     storeMap = {
@@ -79,6 +83,8 @@ export default class RootStore {
         'RoleBinding': { name: 'rb', store: 'rbStore' },
         'ClusterRole': { name: 'cr', store: 'crStore' },
         'ClusterRoleBinding': { name: 'crb', store: 'crbStore' },
+        'LimitRange': { name: 'limits', store: 'limitsStore' },
+        'ResourceQuota': { name: 'quota', store: 'quotaStore' },
         //'Endpoints': {}
     }
 

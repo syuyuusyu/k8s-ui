@@ -89,7 +89,7 @@ class DataYaml extends Component {
 
             <div className={'pod'}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button onClick={store.update}>更新</Button>
+                    <Button onClick={this.updateDate}>更新</Button>
                 </div>
                 <CodeMirror
                     style={{ height: '700px', paddingBottom: '20px' }}
