@@ -33,6 +33,8 @@ import { RbTable, RbTabs } from '../rolebind'
 import { CrTable, CrTabs } from '../crole'
 import { CrbTable, CrbTabs } from '../crolebind'
 import { CreateTab } from '../create'
+import { LimitsTable, LimitsTabs } from '../limits'
+import { QuotaTable, QuotaTabs } from '../quota'
 
 
 import SwaggerUI from "swagger-ui-react"
@@ -216,6 +218,12 @@ class Main extends Component {
 
                             <Route exact path="/k8s/crb" component={CrbTable} />
                             <Route exact path="/k8s/crb/detail" component={CrbTabs} />
+
+                            <Route exact path="/k8s/quota" component={QuotaTable} />
+                            <Route exact path="/k8s/quota/detail" component={QuotaTabs} />
+
+                            <Route exact path="/k8s/limits" component={LimitsTable} />
+                            <Route exact path="/k8s/limits/detail" component={LimitsTabs} />
 
                             <Route exact path="/k8s/api" render={() => <SwaggerUI url={`${host}/kube/api`} />} />
                         </Switch>

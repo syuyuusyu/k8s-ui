@@ -1,9 +1,5 @@
 import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
 
-import {
-    ClusterIcon, NodeIcon, PvIcon, PvcIcon, PodIcon, IngIcon, DsIcon, SvcIcon, RcIcon, RbacIcon, DeployIcon, StsIcon, SecretIcon,
-    RoleBindIcon, RoleIcon, ApplicationIcon, WorkloadIcon, RsIcon, JobIcon, CjIcon, HpaIcon, StorageIcon, CmIcon, SaIcon, ServiceIcon, EventIcon, ApiIcon
-} from '../../config/icon'
 
 
 configure({ enforceActions: 'observed' });
@@ -199,6 +195,28 @@ export default class MenuStore {
                             leaf: "1",
                             icon: 'IngIcon',
                             path: '/k8s/ing'
+                        },
+                    ]
+                },
+                {
+                    code: 'quota',
+                    text: 'Quota',
+                    leaf: "0",
+                    icon: 'QuotaIcon',
+                    children: [
+                        {
+                            code: 'rq',
+                            text: 'ResourceQuota',
+                            leaf: "1",
+                            icon: 'ResourceQuotaIcon',
+                            path: '/k8s/quota'
+                        },
+                        {
+                            code: 'limit',
+                            text: 'LimitRange',
+                            leaf: "1",
+                            icon: 'LimitIcon',
+                            path: '/k8s/limits'
                         },
                     ]
                 },

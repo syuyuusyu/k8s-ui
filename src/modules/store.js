@@ -612,11 +612,11 @@ export class ColumnStore {
         },
     ]
     limitsColumns = [
-        this.column.name('cr'),
+        this.column.name('limits'),
         this.column.creationTimestamp,
     ]
     quotaColumns = [
-        this.column.name('cr'),
+        this.column.name('quota'),
         this.column.creationTimestamp,
     ]
 
