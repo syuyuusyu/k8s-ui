@@ -34,9 +34,6 @@ class LogConsole extends Component {
         }, 1000)
     }
 
-    componentWillReceiveProps(nextProps) {
-        //console.log('nextProps:', nextProps.rootStore.podStore.logText);
-    }
 
     loadLogs = () => {
         const pod = this.props.rootStore.podStore.currentElement

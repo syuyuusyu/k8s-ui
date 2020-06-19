@@ -1,4 +1,4 @@
-export default def = {
+export const def = {
 
     "io.k8s.api.admissionregistration.v1beta1.MutatingWebhook": {
         "description": "MutatingWebhook describes an admission webhook and the resources and operations it applies to.",

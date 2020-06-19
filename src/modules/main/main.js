@@ -34,6 +34,7 @@ import { CrTable, CrTabs } from '../crole'
 import { CrbTable, CrbTabs } from '../crolebind'
 import { CreateTab } from '../create'
 
+
 import SwaggerUI from "swagger-ui-react"
 import "swagger-ui-react/swagger-ui.css"
 import { host } from '../../config/api'
@@ -231,6 +232,7 @@ class Main extends Component {
                     visible={this.state.createVisible}
                 >
                     <CreateTab />
+                    {/* <CodeEditor /> */}
                 </Drawer>
             </Layout >
 

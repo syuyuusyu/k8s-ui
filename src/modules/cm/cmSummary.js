@@ -51,7 +51,7 @@ class Yaml extends Component {
                     options={
                         {
                             mode: 'yaml',
-                            theme: 'material',
+                            theme: 'idea',
                             lineNumbers: true
                         }
                     }

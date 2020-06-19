@@ -187,7 +187,6 @@ class DeployYaml extends Component {
     }
     render() {
         const store = this.props.rootStore.deployStore
-        store.yamlCurrent = store.yamlText
         return (
             <div className={'pod'}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -204,7 +203,9 @@ class DeployYaml extends Component {
                         }
                     }
                     onChange={(editor, data, value) => {
+                        console.log(data)
                         store.yamlCurrent = value;
+                        console.log(store.yamlCurrent)
                     }}
                 />
             </div>
