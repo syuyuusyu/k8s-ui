@@ -1,45 +1,24 @@
-import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
+import { observable, configure, action, runInAction, computed, toJS, reaction } from 'mobx';
+import { notification } from 'antd'
 import YAML from 'yaml';
 
 import { host } from '../../config/api';
-import { get } from '../../config/util'
+import { get, put } from '../../config/util'
 
 
+import { BaseStore } from '../store'
 
 configure({ enforceActions: 'observed' });
 
-export default class NodeStore {
-    constructor(rootStore) {
-        this.rootStore = rootStore;
-    }
+export default class NodeStore extends BaseStore {
 
-    @observable
-    allList = []
+
+    kind = 'Node'
 
     @computed
     get list() {
         return toJS(this.allList)
     }
-
-    @observable
-    currentName = ''
-    @action
-    setCurrentName = (name) => {
-        this.currentName = name
-    }
-
-    @computed
-    get currentElement() {
-        return toJS(this.list).find(_ => _.metadata.name === toJS(this.currentName))
-    }
-
-    @computed
-    get yamlText() {
-        return YAML.stringify(this.currentElement);
-    }
-
-
-
-
 }
+
 

@@ -1,10 +1,11 @@
 import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
 import React, { Component } from 'react';
-import { Tag, Popover, Badge, Tooltip, Alert, } from 'antd'
+import { Tag, Popover, Badge, Tooltip, Alert, notification } from 'antd'
 import { Link, } from 'react-router-dom';
 import { EventSourcePolyfill } from 'event-source-polyfill';
+import YAML from 'yaml';
 import { nsUrl, host } from '../config/api'
-import { get } from '../config/util'
+import { get, put } from '../config/util'
 
 configure({ enforceActions: 'observed' });
 //    let json = YAML.parse(fs.readFileSync(path.resolve(__dirname, this.app.config.entityConfigYaml), 'utf8'));
@@ -34,6 +35,87 @@ Array.prototype.addk8s = function (o) {
 
 export class BaseStore {
 
+    constructor(rootStore) {
+        this.rootStore = rootStore;
+    }
+
+    get short() {
+        return this.rootStore.shortName(this.kind)
+    }
+
+    @observable
+    allList = []
+
+    @computed
+    get list() {
+        return toJS(this.allList).filter(_ => _.metadata.namespace === this.rootStore.columnStore.currentNamespace)
+    }
+
+    @observable
+    currentName = ''
+    @action
+    setCurrentName = (name) => {
+        this.currentName = name
+    }
+
+    @computed
+    get currentElement() {
+
+        const e = toJS(this.list).find(_ => _.metadata.name === this.currentName)
+        if (!e) {
+            this.rootStore.history.push(`/k8s/${this.short}`)
+            return
+        }
+        return e
+    }
+
+    @computed
+    get yamlText() {
+        return YAML.stringify(this.currentElement);
+    }
+
+    yamlCurrent = ''
+    yamlJson = {}
+
+    valideCode = () => {
+        try {
+            this.yamlJson = YAML.parse(this.yamlCurrent);
+            return true;
+        } catch (e) {
+            notification.error({
+                message: e.toLocaleString()
+            });
+            return false;
+        }
+    };
+
+    update = async () => {
+        if (!this.valideCode()) return
+        delete this.yamlJson.status
+        delete this.yamlJson.metadata.creationTimestamp
+        let json = await put(`${host}/kube/${this.kind}`, this.yamlJson);
+        notification[json.success ? 'info' : 'error']({
+            message: json.msg
+        })
+    }
+
+    delete = async () => {
+        let json = await del(`${host}/kube/namespace/${this.rootStore.columnStore.currentNamespace}/${this.kind}/${this.currentName}`);
+        if (json.success) {
+            notification.info({
+                message: json.msg
+            });
+            this.rootStore.history.push(`/k8s/${this.short}`)
+        } else {
+            notification.error({
+                message: json.msg,
+                style: {
+                    width: 600,
+                    marginLeft: 335 - 600,
+                },
+            });
+        }
+    }
 }
 
 export class ColumnStore {
@@ -493,7 +575,7 @@ export class ColumnStore {
                     const sname = this.rootStore.shortName(kind)
                     console.log(sname)
                     const ns = v.namespace
-                    return <Tag color="success"><Link to={`/ k8s / ${sname} / detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link></Tag>
+                    return <Tag color="success"><Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link></Tag>
                 }
                 return name
             }
@@ -501,7 +583,7 @@ export class ColumnStore {
         {
             dataIndex: 'message', title: 'Message', width: 200,
             render: (v, r) =>
-                <Tag color="success" > <Link to={`/ k8s / event / detail`} onClick={() => { this.rootStore.menuStore.goto('event', r.metadata.name) }}>{v}</Link></Tag >
+                <Tag color="success" > <Link to={`/k8s/event/detail`} onClick={() => { this.rootStore.menuStore.goto('event', r.metadata.name) }}>{v}</Link></Tag >
 
         },
         {
@@ -526,7 +608,7 @@ export class ColumnStore {
             render: (v) => {
                 const { kind, name } = v
                 const sname = this.rootStore.shortName(kind)
-                return <Tag color="success" > <Link to={`/ k8s / ${sname} / detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
+                return <Tag color="success" > <Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
             }
 
         },
@@ -547,7 +629,9 @@ export class ColumnStore {
             render: (v) => {
                 const { kind, name } = v
                 const sname = this.rootStore.shortName(kind)
-                return <Tag color="success" > <Link to={`/ k8s / ${sname} / detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
+                console.log(kind)
+                console.log(sname)
+                return <Tag color="success" > <Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
             }
 
         },

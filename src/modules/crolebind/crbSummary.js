@@ -37,7 +37,7 @@ class CrbConfiguration extends Component {
                 <Descriptions title="Info" size={'small'} bordered>
                     <Descriptions.Item label="Role kind" span={3}>{ele.roleRef.kind}</Descriptions.Item>
                     <Descriptions.Item label="Role name" span={3}>
-                        <Tag color="success" > <Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, rname) }}>{rname}</Link></Tag >
+                        <Tag color="success" > <Link to={`/k8s/${sname}/detail`} onClick={() => { this.props.rootStore.menuStore.goto(sname, rname) }}>{rname}</Link></Tag >
                     </Descriptions.Item>
                 </Descriptions>
                 <span>Subjects</span>

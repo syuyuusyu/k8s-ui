@@ -29,7 +29,6 @@ class CrConfiguration extends Component {
     render() {
         const store = this.props.rootStore.store('cr')
         const ele = toJS(store.currentElement)
-
         return (
             <div>
                 <span>Policy Rules</span>
@@ -37,7 +36,7 @@ class CrConfiguration extends Component {
                     columns={[
                         {
                             dataIndex: 'resources', title: 'Resources', width: 200,
-                            render: v => v.join(",")
+                            render: v => v ? v.join(",") : '*'
                         },
                         { dataIndex: 'verbs', title: 'Verbs', width: 200, render: v => v.join(",") }
                     ]}

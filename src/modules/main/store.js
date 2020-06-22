@@ -45,14 +45,14 @@ export default class MenuStore {
                     icon: 'RbacIcon',
                     children: [
                         {
-                            code: 'r',
+                            code: 'cr',
                             text: 'ClusterRole',
                             leaf: "1",
                             icon: 'RoleIcon',
                             path: '/k8s/cr'
                         },
                         {
-                            code: 'rb',
+                            code: 'crb',
                             text: 'ClusterRoleBinding',
                             leaf: "1",
                             icon: 'RoleBindIcon',
@@ -118,14 +118,14 @@ export default class MenuStore {
                             path: '/k8s/rc'
                         },
                         {
-                            code: 'Job',
+                            code: 'job',
                             text: 'Job',
                             leaf: "1",
                             icon: 'JobIcon',
                             path: '/k8s/job'
                         },
                         {
-                            code: 'CronJob',
+                            code: 'cj',
                             text: 'CronJob',
                             leaf: "1",
                             icon: 'CjIcon',
@@ -147,7 +147,7 @@ export default class MenuStore {
                     icon: 'StorageIcon',
                     children: [
                         {
-                            code: 'ConfigMap',
+                            code: 'cm',
                             text: 'ConfigMap',
                             leaf: "1",
                             icon: 'CmIcon',
@@ -199,20 +199,20 @@ export default class MenuStore {
                     ]
                 },
                 {
-                    code: 'quota',
+                    code: 'quotamenu',
                     text: 'Quota',
                     leaf: "0",
                     icon: 'QuotaIcon',
                     children: [
                         {
-                            code: 'rq',
+                            code: 'quota',
                             text: 'ResourceQuota',
                             leaf: "1",
                             icon: 'ResourceQuotaIcon',
                             path: '/k8s/quota'
                         },
                         {
-                            code: 'limit',
+                            code: 'limits',
                             text: 'LimitRange',
                             leaf: "1",
                             icon: 'LimitIcon',
