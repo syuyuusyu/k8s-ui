@@ -25,6 +25,7 @@ class PodTable extends Component {
                     rowKey={record => record.metadata.uid}
                     dataSource={this.props.rootStore.podStore.list.filter(this.props.filterFun)}
                     size="small"
+                    pagination={{ pageSize: 10 }}
                 />
             </div>
         );

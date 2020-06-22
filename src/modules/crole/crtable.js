@@ -21,6 +21,7 @@ class CrTable extends Component {
                     rowKey={record => record.metadata.uid}
                     dataSource={this.props.rootStore.list('cr')}
                     size="small"
+                    pagination={{ pageSize: 15 }}
                 />
             </div>
         );

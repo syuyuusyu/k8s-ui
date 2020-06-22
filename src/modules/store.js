@@ -1,6 +1,6 @@
 import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
 import React, { Component } from 'react';
-import { Tag, Popover, Badge, Tooltip, Alert, notification } from 'antd'
+import { Tag, Popover, Badge, Tooltip, Alert, notification, message } from 'antd'
 import { Link, } from 'react-router-dom';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import YAML from 'yaml';
@@ -141,6 +141,8 @@ export class ColumnStore {
 
     endpoints = []
 
+    enableMessage = false
+
     loadAll = () => {
         if (this.eventSource) {
             this.eventSource.close();
@@ -155,12 +157,28 @@ export class ColumnStore {
                 const data = JSON.parse(result.data);
 
                 if (data.type === 'HEARTBEAT') return
-                if (data.type != 'ADDED') {
-                    //console.log(data);
+                const { type, object: { kind, metadata: { name, namespace } } } = data
+                if (type != 'MODIFIED') {
+                    this.enableMessage = true
                 }
-                // if (data.object.kind === 'ReplicationController') {
-                //     console.log(data);
-                // }
+                if (this.enableMessage) {
+                    let msg = `类型:${kind} ${namespace ? '命名空间:' + namespace : ' '} 名称:${name}`
+                    switch (type) {
+                        // case 'ADDED':
+                        //     msg = '新增资源 ' + msg
+                        //     message.info(msg)
+                        //     break
+                        case 'DELETED':
+                            msg = '删除资源 ' + msg
+                            message.info(msg)
+                            break
+                        case 'MODIFIED':
+                            msg = '资源 ' + msg + ' 状态发生改变'
+                            message.info(msg)
+                            break
+                    }
+
+                }
                 const { storeMap } = this.rootStore
                 runInAction(() => {
                     for (let key in storeMap) {

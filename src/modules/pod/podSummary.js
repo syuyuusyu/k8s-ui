@@ -31,33 +31,18 @@ class PodInfo extends Component {
     render() {
         const store = this.props.rootStore.podStore
         const pod = store.currentElement
-        const rsStore = this.props.rootStore.rsStore
-        let rss = []
+        let controlled = []
         if (pod.metadata.ownerReferences) {
-            rss = rsStore.list.filter(_ => pod.metadata.ownerReferences.find(ow => ow.uid === _.metadata.uid))
+            controlled = pod.metadata.ownerReferences.map(ow => ({ name: ow.name, short: this.props.rootStore.shortName(ow.kind) }))
         }
-        const sts = this.props.rootStore.list('sts').filter(_ => pod.metadata.ownerReferences.find(ow => ow.uid === _.metadata.uid))
-        const ds = this.props.rootStore.list('ds').filter(_ => pod.metadata.ownerReferences.find(ow => ow.uid === _.metadata.uid))
-        console.log(pod.status.containerStatuses);
+
         return (
             <div>
                 <Descriptions title={`Info`} size={'small'} bordered>
                     {
-                        rss.map(d =>
+                        controlled.map(d =>
                             <Descriptions.Item span={3} key={Math.random().toString().substr(2, 10)} label="Controlled By">
-                                <Tag color="success"><Link to={`/k8s/rs/detail`} onClick={() => { this.props.rootStore.menuStore.goto('rs', d.metadata.name) }}>{d.metadata.name}</Link></Tag>
-                            </Descriptions.Item>)
-                    }
-                    {
-                        sts.map(d =>
-                            <Descriptions.Item span={3} key={Math.random().toString().substr(2, 10)} label="Controlled By">
-                                <Tag color="success"><Link to={`/k8s/sts/detail`} onClick={() => { this.props.rootStore.menuStore.goto('sts', d.metadata.name) }}>{d.metadata.name}</Link></Tag>
-                            </Descriptions.Item>)
-                    }
-                    {
-                        ds.map(d =>
-                            <Descriptions.Item span={3} key={Math.random().toString().substr(2, 10)} label="Controlled By">
-                                <Tag color="success"><Link to={`/k8s/ds/detail`} onClick={() => { this.props.rootStore.menuStore.goto('ds', d.metadata.name) }}>{d.metadata.name}</Link></Tag>
+                                <Tag color="success"><Link to={`/k8s/${d.short}/detail`} onClick={() => { this.props.rootStore.menuStore.goto(d.short, d.name) }}>{d.name}</Link></Tag>
                             </Descriptions.Item>)
                     }
                     <Descriptions.Item label="Priority">{pod.spec.priority}</Descriptions.Item>

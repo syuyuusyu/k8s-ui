@@ -279,7 +279,6 @@ export default class MenuStore {
                 path: `/k8s/${kind}/detail`
             })
         }
-        console.log(kind);
         this.rootStore.store(kind).setCurrentName(name)
     }
 
