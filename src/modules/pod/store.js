@@ -11,44 +11,6 @@ import { get, put, del } from '../../config/util'
 
 configure({ enforceActions: 'observed' });
 
-// Array.prototype.addpod = function (o) {
-//     if (o.metadata.name === 'heart beat') return
-//     if (!this.idindex) {
-//         this.idindex = [];
-//     }
-//     //console.log(111,this.length,o.metadata.uid)
-//     //console.log(o);
-//     if (o.metadata.deletionTimestamp) {
-//         console.log(`pod ${o.metadata.name} in terminating`)
-//         if (this.idindex.includes(o.metadata.uid)) {
-//             let index = this.idindex.indexOf(o.metadata.uid)
-//             this[index].metadata.terminating = true
-//             if (o.metadata.deletionTimestamp.afterNow) {
-//                 if (this[index].status.containerStatuses) {
-//                     for (let i = 0; i < this[index].status.containerStatuses.length; i++) {
-//                         this[index].status.containerStatuses[i].state = { "terminating...": {} }
-//                     }
-//                 } else {
-//                     this[index].status.phase = 'terminating...'
-//                 }
-//             }
-//             if (o.metadata.deletionTimestamp.beforeNow) {
-//                 this.splice(index, 1);
-//                 this.idindex.splice(index, 1);
-//             }
-//         }
-//         return
-//     }
-
-//     if (this.idindex.includes(o.metadata.uid)) {
-//         let index = this.idindex.indexOf(o.metadata.uid)
-//         this.splice(index, 1);
-//         this.idindex.splice(index, 1);
-//     }
-//     this.idindex.push(o.metadata.uid);
-//     this.push(o)
-// }
-
 export default class PodStore {
     constructor(rootStore) {
         this.rootStore = rootStore;
@@ -74,17 +36,8 @@ export default class PodStore {
 
         const e = toJS(this.list).find(_ => _.metadata.name === this.currentName)
         if (!e) {
-            this.rootStore.history.push('/k8s/pod');
-            //this.rootStore.history.back()
+            this.rootStore.history.push('/k8s/pod')
             return
-        }
-        console.log(`currentName:${this.currentName}  e.name:${e.metadata.name}  e.terminating:${e.metadata.terminating}`)
-        if (e.metadata.terminating) {
-            notification.info({
-                message: `${this.currentName}处于删除状态`
-            });
-            this.rootStore.history.push('/k8s/pod');
-            //this.rootStore.history.back()
         }
         return e
     }

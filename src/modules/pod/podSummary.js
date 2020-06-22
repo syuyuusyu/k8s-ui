@@ -32,7 +32,10 @@ class PodInfo extends Component {
         const store = this.props.rootStore.podStore
         const pod = store.currentElement
         const rsStore = this.props.rootStore.rsStore
-        const rss = rsStore.list.filter(_ => pod.metadata.ownerReferences.find(ow => ow.uid === _.metadata.uid))
+        let rss = []
+        if (pod.metadata.ownerReferences) {
+            rss = rsStore.list.filter(_ => pod.metadata.ownerReferences.find(ow => ow.uid === _.metadata.uid))
+        }
         const sts = this.props.rootStore.list('sts').filter(_ => pod.metadata.ownerReferences.find(ow => ow.uid === _.metadata.uid))
         const ds = this.props.rootStore.list('ds').filter(_ => pod.metadata.ownerReferences.find(ow => ow.uid === _.metadata.uid))
         console.log(pod.status.containerStatuses);

@@ -104,8 +104,8 @@ export default class RootStore {
 
     }
 
-    shortName = (name) => {
-        return this.storeMap[name].name
+    shortName = (kind) => {
+        return this.storeMap[kind].name
     }
 
     list = (kind) => {

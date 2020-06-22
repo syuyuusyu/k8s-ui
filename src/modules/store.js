@@ -9,11 +9,11 @@ import { get } from '../config/util'
 configure({ enforceActions: 'observed' });
 //    let json = YAML.parse(fs.readFileSync(path.resolve(__dirname, this.app.config.entityConfigYaml), 'utf8'));
 Array.prototype.addk8s = function (o) {
-    const { type, object: obj, afterNow, beforeNow, deletionTimestamp } = o
+    const { type, object: obj, } = o
     if (!this.idindex) {
         this.idindex = [];
     }
-    if (type === 'DELETED' || deletionTimestamp) {
+    if (type === 'DELETED') {
         if (this.idindex.includes(obj.metadata.uid)) {
             let index = this.idindex.indexOf(obj.metadata.uid)
             this.splice(index, 1);
@@ -32,46 +32,9 @@ Array.prototype.addk8s = function (o) {
 
 }
 
-Array.prototype.addpod = function (o) {
-    const { type, object: obj, afterNow, beforeNow, deletionTimestamp } = o
-    if (!this.idindex) {
-        this.idindex = [];
-    }
-
-    if (deletionTimestamp) {
-        console.log(`${obj.metadata.name} in terminating`)
-        if (this.idindex.includes(obj.metadata.uid)) {
-            let index = this.idindex.indexOf(obj.metadata.uid)
-            this[index].metadata.terminating = true
-            if (afterNow) {
-                if (this[index].status.containerStatuses) {
-                    for (let i = 0; i < this[index].status.containerStatuses.length; i++) {
-                        this[index].status.containerStatuses[i].state = { "terminating...": {} }
-                    }
-                } else {
-                    this[index].status.phase = 'terminating...'
-                }
-            }
-            if (beforeNow) {
-                this.splice(index, 1);
-                this.idindex.splice(index, 1);
-            }
-        }
-        return
-    }
-
-    if (this.idindex.includes(obj.metadata.uid)) {
-        let index = this.idindex.indexOf(obj.metadata.uid)
-        this.splice(index, 1);
-        this.idindex.splice(index, 1);
-    }
-    this.idindex.push(obj.metadata.uid);
-    this.push(obj)
+export class BaseStore {
 
 }
-
-
-
 
 export class ColumnStore {
     constructor(rootStore) {
@@ -121,9 +84,6 @@ export class ColumnStore {
                     for (let key in storeMap) {
                         if (data.object.kind === key) {
                             switch (key) {
-                                case 'pod':
-                                    this.rootStore.store('pod').allList.addpod(data)
-                                    break
                                 case 'Endpoints':
                                     this.endpoints.addk8s(data)
                                     break
@@ -253,10 +213,10 @@ export class ColumnStore {
             render: (value) => {
                 if (!value.containerStatuses) {
                     if (!value.conditions) {
-                        return '-';
+                        return <Alert message={value.phase} type={'info'} showIcon />
                     }
                     let obj = value.conditions[0].message
-                    return <Tooltip title={obj}><div ><Alert message={value.phase} type={'error'} showIcon /></div></Tooltip>
+                    return <Tooltip title={obj}><div ><Alert message={value.phase} type={'warning'} showIcon /></div></Tooltip>
                 }
                 let arr = value.containerStatuses.map(_ => {
                     let map = {
@@ -270,40 +230,21 @@ export class ColumnStore {
                     }
                     return map;
                 });
-                if (arr.length === 1) {
-                    return arr.map((item, index) => {
-                        return (
-                            item.reason ?
-                                <Popover key={index} title={item.name} content={<div style={{ width: 200 }}>{item.message}</div>}>
-                                    <div>
-                                        <Alert message={item.reason ? `${item.state}(${item.reason})` : item.state} type={item.state === 'running' ? 'success' : 'error'} showIcon />
-                                    </div>
-                                </Popover>
-                                :
-                                <div key={index}>
-                                    <Alert message={item.reason ? `${item.state}(${item.reason})` : item.state} type={item.state === 'running' ? 'success' : 'error'} showIcon />
-                                </div>
-                        );
-                    })
-                        ;
-                } else if (arr.length !== 0) {
-                    return arr.map((item, index) => {
-                        const message = item.reason ? `${item.name}：${item.state}(${item.reason})` : `${item.name}：${item.state}`;
-                        return (
-                            item.reason ?
-                                <Popover key={index} title={item.name} content={<div style={{ width: 200 }}>{item.message}</div>}>
-                                    <div style={{ marginBottom: '15px' }}>
-                                        <Alert message={message} type={item.state === 'running' ? 'success' : 'error'} showIcon />
-                                    </div>
-                                </Popover>
-                                :
-                                <div key={index} style={{ marginBottom: '15px' }}>
-                                    <Alert message={message} type={item.state === 'running' ? 'success' : 'error'} showIcon />
-                                </div>
-                        );
-                    })
-                }
+                //<Tooltip title={obj}><div ><Alert message={value.phase} type={'warning'} showIcon /></div></Tooltip>
+
+                return arr.map((item, index) => {
+                    if (!item.reason) {
+                        return <Alert key={index + ''} message={item.state} type={item.state == 'running' ? 'success' : 'error'} showIcon />
+                    }
+                    if (item.reason) {
+                        if (item.message) {
+                            return <Tooltip Alert key={index + ''} title={item.message}><div ><Alert message={`${item.state}(${item.reason})`} type={'error'} showIcon /></div></Tooltip>
+                        }
+                        return <Alert key={index + ''} message={`${item.state}(${item.reason})`} type={'error'} showIcon />
+                    }
+                })
             }
+
         },
         { dataIndex: ['spec', 'nodeName'], title: '所在节点', width: 120 },
         this.column.creationTimestamp,
@@ -514,8 +455,8 @@ export class ColumnStore {
             dataIndex: ['spec', 'externalIPs'], title: 'External IP', width: 200, //TODO array
         },
         {
-            dataIndex: ['spec', 'ports'], title: 'Ports', width: 200,
-            render: ports => ports.map(p => p.port + '/' + p.protocol).join(',')
+            dataIndex: ['spec', 'ports'], title: 'Ports', width: 100,
+            render: ports => ports.map((p, i) => p.port + '/' + p.protocol + `${i % 3 == 0 ? '\n' : ''}`).join(',')
         },
         this.column.creationTimestamp,
     ]
@@ -552,7 +493,7 @@ export class ColumnStore {
                     const sname = this.rootStore.shortName(kind)
                     console.log(sname)
                     const ns = v.namespace
-                    return <Tag color="success"><Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link></Tag>
+                    return <Tag color="success"><Link to={`/ k8s / ${sname} / detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link></Tag>
                 }
                 return name
             }
@@ -560,7 +501,7 @@ export class ColumnStore {
         {
             dataIndex: 'message', title: 'Message', width: 200,
             render: (v, r) =>
-                <Tag color="success" > <Link to={`/k8s/event/detail`} onClick={() => { this.rootStore.menuStore.goto('event', r.metadata.name) }}>{v}</Link></Tag >
+                <Tag color="success" > <Link to={`/ k8s / event / detail`} onClick={() => { this.rootStore.menuStore.goto('event', r.metadata.name) }}>{v}</Link></Tag >
 
         },
         {
@@ -585,7 +526,7 @@ export class ColumnStore {
             render: (v) => {
                 const { kind, name } = v
                 const sname = this.rootStore.shortName(kind)
-                return <Tag color="success" > <Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
+                return <Tag color="success" > <Link to={`/ k8s / ${sname} / detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
             }
 
         },
@@ -606,7 +547,7 @@ export class ColumnStore {
             render: (v) => {
                 const { kind, name } = v
                 const sname = this.rootStore.shortName(kind)
-                return <Tag color="success" > <Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
+                return <Tag color="success" > <Link to={`/ k8s / ${sname} / detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name) }}>{name}</Link></Tag >
             }
 
         },
@@ -617,6 +558,14 @@ export class ColumnStore {
     ]
     quotaColumns = [
         this.column.name('quota'),
+        {
+            dataIndex: ['status', 'hard'], title: 'Hard', width: 200,
+            render: (v) => `cpu: ${v.cpu}  memory: ${v.memory}  pods: ${v.pods}`
+        },
+        {
+            dataIndex: ['status', 'used'], title: 'Used', width: 200,
+            render: (v) => `cpu: ${v.cpu}  memory: ${v.memory}  pods: ${v.pods}`
+        },
         this.column.creationTimestamp,
     ]
 
