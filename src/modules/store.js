@@ -174,8 +174,10 @@ export class ColumnStore {
                             act = 'warning'
                             break
                     }
+                    //
+                    const short = this.rootStore.shortName(kind)
                     message[act]({
-                        content: msg,
+                        content: <div style={{ float: "right" }}><Tag color={act} onClick={() => { this.rootStore.menuStore.goto(short, name, namespace, `/k8s/${short}/detail`) }}>{msg}</Tag></div>,
                         style: {
                             marginTop: '45%',
                             marginLeft: '50%'

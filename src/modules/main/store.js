@@ -267,7 +267,10 @@ export default class MenuStore {
     })
 
     @action
-    goto = (kind, name, namespace) => {
+    goto = (kind, name, namespace, path) => {
+        if (path) {
+            this.rootStore.history.push(path)
+        }
         if (namespace) {
             this.rootStore.columnStore.nsChange(namespace)
         }

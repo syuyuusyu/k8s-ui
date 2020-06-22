@@ -219,7 +219,6 @@ class DeployTabs extends Component {
     state = {}
     static getDerivedStateFromProps(props, state) {
         const store = props.rootStore.deployStore
-        console.log(toJS(store.currentElement));
         if (!toJS(store.currentElement)) {
             //props.history.push('/k8s/deploy');
             return { shouldgo: false }

@@ -1,4 +1,4 @@
-v="v1.08"
+v="v1.09"
 npm run build &&
 docker build -t k8s-ui:$v . &&
 docker tag k8s-ui:$v 10.10.25.1:5000/k8s-ui:$v &&
