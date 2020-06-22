@@ -5,7 +5,7 @@ import { Link, } from 'react-router-dom';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import YAML from 'yaml';
 import { nsUrl, host } from '../config/api'
-import { get, put } from '../config/util'
+import { get, put, del } from '../config/util'
 
 configure({ enforceActions: 'observed' });
 //    let json = YAML.parse(fs.readFileSync(path.resolve(__dirname, this.app.config.entityConfigYaml), 'utf8'));
@@ -141,8 +141,6 @@ export class ColumnStore {
 
     endpoints = []
 
-    enableMessage = false
-
     loadAll = () => {
         if (this.eventSource) {
             this.eventSource.close();
@@ -157,26 +155,32 @@ export class ColumnStore {
                 const data = JSON.parse(result.data);
 
                 if (data.type === 'HEARTBEAT') return
-                const { type, object: { kind, metadata: { name, namespace } } } = data
-                if (type != 'MODIFIED') {
-                    this.enableMessage = true
-                }
-                if (this.enableMessage) {
+                const { type, object: { kind, metadata: { name, namespace } }, notCache } = data
+
+                if (notCache && (!namespace || namespace == this.currentNamespace)) {
                     let msg = `类型:${kind} ${namespace ? '命名空间:' + namespace : ' '} 名称:${name}`
+                    let act = 'error'
                     switch (type) {
-                        // case 'ADDED':
-                        //     msg = '新增资源 ' + msg
-                        //     message.info(msg)
-                        //     break
+                        case 'ADDED':
+                            msg = '新增资源 ' + msg
+                            act = 'success'
+                            break
                         case 'DELETED':
                             msg = '删除资源 ' + msg
-                            message.info(msg)
+                            act = 'error'
                             break
                         case 'MODIFIED':
                             msg = '资源 ' + msg + ' 状态发生改变'
-                            message.info(msg)
+                            act = 'warning'
                             break
                     }
+                    message[act]({
+                        content: msg,
+                        style: {
+                            marginTop: '45%',
+                            marginLeft: '50%'
+                        },
+                    })
 
                 }
                 const { storeMap } = this.rootStore
