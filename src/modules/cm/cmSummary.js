@@ -42,9 +42,8 @@ class Yaml extends Component {
 
             <div className={'pod'}>
                 <span style={{ display: 'none' }}>{store.yamlText}</span>
-                <Row>
-                    <Col><Button onClick={store.update}>更新</Button></Col>
-                </Row>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button onClick={store.update} type="primary" type="primary">更新</Button></div>
                 <CodeMirror
                     style={{ height: '700px', paddingBottom: '20px' }}
                     value={store.yamlText}
@@ -89,8 +88,7 @@ class DataYaml extends Component {
 
             <div className={'pod'}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button onClick={this.updateDate}>更新</Button>
-                </div>
+                    <Button onClick={this.updateDate} type="primary">更新</Button></div>
                 <CodeMirror
                     style={{ height: '700px', paddingBottom: '20px' }}
                     value={store.currentData}

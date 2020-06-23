@@ -72,8 +72,7 @@ class LimitsYaml extends Component {
 
             <div className={'pod'}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button onClick={store.update}>更新</Button>
-                </div>
+                    <Button onClick={store.update} type="primary">更新</Button></div>
                 <CodeMirror
                     style={{ height: '700px', paddingBottom: '20px' }}
                     value={store.yamlText}
