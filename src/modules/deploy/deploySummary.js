@@ -19,6 +19,7 @@ import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
 import 'codemirror/theme/idea.css';
 import '../codeMirrorStyle.css';
+import { PodTemplate, PodTemplateVolumes } from '../common'
 
 
 @inject('rootStore')
@@ -84,11 +85,7 @@ class DeployConfiguration extends Component {
 }
 
 
-@inject('rootStore')
-@observer
-class templateTable extends Component {
 
-}
 
 
 
@@ -118,6 +115,8 @@ class DeploySummary extends Component {
                 <DeployConfiguration />
                 <span>Pods</span>
                 <PodTable filterFun={this.filterFun} />
+                <PodTemplate kind={store.kind} />
+                <PodTemplateVolumes kind={store.kind} />
                 <Conditions list={store.currentElement.status.conditions} />
                 <DeployVolumes deploy={deploy} />
 
@@ -228,7 +227,7 @@ class DeployTabs extends Component {
 
     render() {
         const store = this.props.rootStore.deployStore
-        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button >删除</Button></Popconfirm>;
+        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
                 <div>

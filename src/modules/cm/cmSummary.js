@@ -185,7 +185,7 @@ class CmTabs extends Component {
 
     render() {
         const store = this.props.rootStore.store('cm')
-        const operations = <span><Popconfirm title="确定删除？" onConfirm={store.delete}><Button >删除</Button></Popconfirm></span>;
+        const operations = <span><Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm></span>;
         if (this.state.shouldgo) {
             return (
                 <div>

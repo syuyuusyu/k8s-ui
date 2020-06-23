@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const { TabPane } = Tabs;
 import { inject, observer } from 'mobx-react';
 import { toJS } from 'mobx';
-import { Conditions, Metadata } from '../common'
+import { Conditions, Metadata, PodTemplate, PodTemplateVolumes } from '../common'
 import { PodTable } from '../pod'
 
 import { UnControlled as CodeMirror } from 'react-codemirror2'
@@ -75,6 +75,9 @@ class RcSummary extends Component {
 
     }
     filterFun = (pod) => {
+        if (!pod.metadata.ownerReferences) {
+            return false
+        }
         const ds = this.props.rootStore.element('rc')
         let podRsid = pod.metadata.ownerReferences.map(_ => _.uid)
         return podRsid.find(id => id === ds.metadata.uid)
@@ -86,6 +89,9 @@ class RcSummary extends Component {
                 <RcConfiguration />
                 <span>Pods</span>
                 <PodTable filterFun={this.filterFun} />
+                <PodTemplate kind={'rc'} />
+                <PodTemplateVolumes kind={'rc'} />
+
             </div>
         )
     }
@@ -141,7 +147,7 @@ class RcTabs extends Component {
 
     render() {
         const store = this.props.rootStore.rcStore
-        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button >删除</Button></Popconfirm>;
+        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
                 <div>

@@ -49,10 +49,15 @@ class MenuTree extends Component {
         const store = this.props.rootStore.menuStore;
         console.log(store.menuTreeData)
         return (
-            <div>
+            <div style={{
+                overflowY: 'scroll',
+                height: '100vh'
+            }
+            } >
                 <Menu onClick={store.onMenuClick} theme='light' mode="inline"
                     defaultSelectedKeys={['node']}
                     defaultOpenKeys={['application', 'cluster']}
+
                 //inlineCollapsed={store.collapsed}
                 >
                     {/* <Menu.Item key='home'><Link to='/home'><HomeOutlined /> <span>首页</span></Link></Menu.Item> */}
@@ -60,7 +65,7 @@ class MenuTree extends Component {
                         this.renderTree(store.menuTreeData)
                     }
                 </Menu>
-            </div>);
+            </ div >);
 
     }
 }

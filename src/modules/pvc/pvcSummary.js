@@ -98,6 +98,9 @@ class PvcSummary extends Component {
 
     }
     filterFun = (pod) => {
+        if (!pod.metadata.ownerReferences) {
+            return false
+        }
         const pvc = this.props.rootStore.element('pvc')
         let vol = pod.spec.volumes.find(v => v.persistentVolumeClaim)
         if (!vol) {
@@ -169,7 +172,7 @@ class PvcTabs extends Component {
 
     render() {
         const store = this.props.rootStore.store('pvc')
-        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button >删除</Button></Popconfirm>;
+        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
                 <div>

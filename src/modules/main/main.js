@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Layout, Menu, Popover, Tooltip, Row, Col, Breadcrumb, notification, Select, Tag, Button, Drawer
+    Layout, Menu, Popover, Tooltip, Row, Col, Breadcrumb, notification, Select, Tag, Button, Drawer, Space
 } from 'antd';
 const { Header, Sider, Content } = Layout;
 const { Option } = Select
@@ -96,6 +96,12 @@ class Main extends Component {
     componentDidMount() {
         const store = this.props.rootStore.columnStore;
         store.loadNs()
+        let key = this.props.history.location.pathname.split("/")[this.props.history.location.pathname.split("/").length - 1]
+        if (key) {
+            console.log(key)
+            this.props.rootStore.menuStore.onMenuClick({ key })
+        }
+
     }
 
     render() {
@@ -105,19 +111,19 @@ class Main extends Component {
         return (
             <Layout style={{ height: '1000' }}>
 
-                <Sider trigger={null} collapsible collapsed={menuStore.collapsed} theme="light">
+                <Sider trigger={null} collapsible collapsed={menuStore.collapsed} theme="light" >
                     <MenuTree />
                 </Sider>
                 <Layout style={{ height: 'auto' }}>
 
                     <Header style={{ background: '#fff', padding: 6 }}>
                         <Row gutter={24}>
-                            <Col span={2}>
+                            <Col span={1}>
                                 <Button type="primary" onClick={menuStore.toggleCollapsed} >
                                     {React.createElement(menuStore.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined)}
                                 </Button>
                             </Col>
-                            <Col span={14} >
+                            <Col span={16} >
 
                                 <Breadcrumb style={{ margin: '20px 4px' }}>
                                     < Breadcrumb.Item > <CodeOutlined /></Breadcrumb.Item>
@@ -125,14 +131,14 @@ class Main extends Component {
                                         menuStore.currentRoute
                                             .filter(d => d).map((r, index) => {
                                                 if (r.path) {
-                                                    return <Breadcrumb.Item key={r.code}><Tag color="success"><Link onClick={this.props.rootStore.menuStore.resetBreadcrumb(index)} to={r.path}>{!r.icon ? '' : React.createElement(require('../../config/icon')[r.icon])}{r.text}</Link></Tag></Breadcrumb.Item>
+                                                    return <Breadcrumb.Item key={r.code}><Tag color="success"><Space><Link onClick={this.props.rootStore.menuStore.resetBreadcrumb(index)} to={r.path}>{!r.icon ? '' : <span>{React.createElement(require('../../config/icon')[r.icon])}</span>}{r.text}</Link></Space></Tag></Breadcrumb.Item>
                                                 }
-                                                return <Breadcrumb.Item key={r.code}>{!r.icon ? '' : React.createElement(require('../../config/icon')[r.icon])}{r.text}</Breadcrumb.Item>
+                                                return <Breadcrumb.Item key={r.code}><Space>{!r.icon ? '' : <span>{React.createElement(require('../../config/icon')[r.icon])}</span>}{r.text}</Space></Breadcrumb.Item>
                                             })
                                     }
                                 </Breadcrumb>
                             </Col>
-                            <Col span={6}>
+                            <Col span={4}>
                                 <Select onChange={store.nsChange} value={store.currentNamespace} style={{ width: 200 }}
                                     options={toJS(store.allNamespace).map(n => ({ label: n, value: n }))}
                                 />

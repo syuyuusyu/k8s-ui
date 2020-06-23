@@ -30,6 +30,7 @@ class PodInfo extends Component {
 
     render() {
         const store = this.props.rootStore.podStore
+
         const pod = store.currentElement
         let controlled = []
         if (pod.metadata.ownerReferences) {
@@ -54,7 +55,6 @@ class PodInfo extends Component {
                     <Descriptions.Item label="Host IP">{pod.status.hostIP}</Descriptions.Item>
                 </Descriptions>
                 {
-
                     pod.status.containerStatuses.map(c => {
                         let cspec = pod.spec.containers.find(_ => _.name === c.name)
                         let stateKey = Object.keys(c.state)[0]
@@ -99,13 +99,55 @@ class PodInfo extends Component {
                                 }
                                 {/* ------ state end -------- */}
                                 {
-                                    cspec.volumeMounts ?
+                                    store.volumeMountList.filter(_ => _.containerName === c.name).length > 0 ?
                                         <Descriptions.Item label="Volume Mounts" span={3}>
                                             <Table
-                                                columns={[{ dataIndex: 'name', title: 'name', width: 100 }, { dataIndex: 'mountPath', title: 'Mount Path', width: 100 }]}
+                                                columns={[
+                                                    { dataIndex: 'name', title: 'name', width: 150 },
+                                                    { dataIndex: 'kind', title: 'Kind', width: 100 },
+                                                    { dataIndex: 'mountPath', title: 'Mount Path', width: 100 },
+                                                    {
+                                                        dataIndex: 'refName', title: 'Link', width: 200,
+                                                        render: (v, record) => {
+                                                            if (!v) {
+                                                                return ''
+                                                            }
+                                                            const short = this.props.rootStore.shortName(record.kind)
+                                                            return <Tag color="success"><a onClick={() => { this.props.rootStore.menuStore.goto(short, v, null, `/k8s/${short}/detail`) }}>{v}</a></Tag>
+                                                        }
+                                                    }
+                                                ]}
                                                 rowKey={record => record.name}
-                                                dataSource={cspec.volumeMounts}
+                                                dataSource={store.volumeMountList.filter(_ => _.containerName === c.name)}
                                                 size="small"
+                                                pagination={{ pageSize: 5 }}
+                                            />
+                                        </Descriptions.Item>
+                                        : ''
+                                }
+                                {
+                                    store.envList.filter(_ => _.containerName === c.name).length > 0 ?
+                                        <Descriptions.Item label="Env" span={3}>
+                                            <Table
+                                                columns={[
+                                                    { dataIndex: 'name', title: 'name', width: 120 },
+                                                    { dataIndex: 'kind', title: 'Kind', width: 70 },
+                                                    {
+                                                        dataIndex: 'refName', title: 'Link', width: 150,
+                                                        render: (v, record) => {
+                                                            if (!v) {
+                                                                return ''
+                                                            }
+                                                            const short = this.props.rootStore.shortName(record.kind)
+                                                            return <Tag color="success"><a onClick={() => { this.props.rootStore.menuStore.goto(short, v, null, `/k8s/${short}/detail`) }}>{v}</a></Tag>
+                                                        }
+                                                    },
+                                                    { dataIndex: 'value', title: 'Value', width: 300 },
+                                                ]}
+                                                rowKey={record => record.name}
+                                                dataSource={store.envList.filter(_ => _.containerName === c.name)}
+                                                size="small"
+                                                pagination={{ pageSize: 5 }}
                                             />
                                         </Descriptions.Item>
                                         : ''
@@ -154,33 +196,30 @@ class PodEnv extends Component {
 class PodVolumes extends Component {
 
     cloumns = [
-        { dataIndex: 'name', title: 'Name', width: 200 },
-        { dataIndex: 'kind', title: 'Kind', width: 200 },
+        { dataIndex: 'name', title: 'Name', width: 150 },
+        { dataIndex: 'kind', title: 'Kind', width: 100 },
         { dataIndex: 'description', title: 'Description', width: 200 },
+        {
+            dataIndex: 'refName', title: 'Link', width: 200,
+            render: (v, record) => {
+                if (!v) {
+                    return ''
+                }
+                const short = this.props.rootStore.shortName(record.kind)
+                return <Tag color="success"><a onClick={() => { this.props.rootStore.menuStore.goto(short, v, null, `/k8s/${short}/detail`) }}>{v}</a></Tag>
+            }
+        }
     ]
 
-    get list() {
-        const store = this.props.rootStore.podStore
-        const pod = store.currentElement
-        const volumes = pod.spec.volumes
-
-        let arr = []
-        volumes.forEach(v => {
-            let kind = Object.keys(v).find(k => k !== 'name')
-            let description = v[kind]
-            arr.push({ name: v.name, kind, description: JSON.stringify(description) })
-        });
-        return arr
-    }
-
     render() {
+        const store = this.props.rootStore.store('pod')
         return (
             <div>
                 <span>Volumes</span>
                 <Table
                     columns={this.cloumns}
                     rowKey={record => record.name}
-                    dataSource={this.list}
+                    dataSource={store.volumeList}
                     size="small"
                 />
             </div>
@@ -272,7 +311,7 @@ class PodTabs extends Component {
     render() {
         const store = this.props.rootStore.podStore
         const pod = store.currentElement
-        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button >删除</Button></Popconfirm>;
+        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
                 // 

@@ -21,6 +21,7 @@ class PvTable extends Component {
                     rowKey={record => record.metadata.uid}
                     dataSource={this.props.rootStore.list('pv')}
                     size="small"
+                    pagination={{ pageSize: 15 }}
                 />
             </div>
         );

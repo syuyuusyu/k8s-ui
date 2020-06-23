@@ -150,7 +150,7 @@ class SecretTabs extends Component {
 
     render() {
         const store = this.props.rootStore.store('secret')
-        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button >删除</Button></Popconfirm>;
+        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
                 <div>

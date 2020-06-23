@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+String.prototype.toUpperFirstCase = function () {
+    let first = this.trimLeft().split('')[0]
+    return this.replace(/^\s*(\w)/, () => first.toLocaleUpperCase())
+}
+
 export function request(method, url, body) {
     method = method.toUpperCase();
     let params;

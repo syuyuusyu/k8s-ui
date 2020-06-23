@@ -25,7 +25,7 @@ export default class MenuStore {
             icon: 'ClusterIcon',
             children: [
                 {
-                    code: 'node',
+                    code: 'no',
                     text: 'node',
                     leaf: "1",
                     icon: 'NodeIcon',
@@ -298,7 +298,6 @@ export default class MenuStore {
                 });
             })
         });
-
     };
 
 

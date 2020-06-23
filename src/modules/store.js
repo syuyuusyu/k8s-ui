@@ -116,6 +116,84 @@ export class BaseStore {
             });
         }
     }
+
+    //PodTemplate 
+    @computed
+    get volumeList() {
+        if (!this.currentElement.spec.template || !this.currentElement.spec.template.spec.volumes) {
+            return []
+        }
+        const volumes = this.currentElement.spec.template.spec.volumes
+
+        let arr = []
+        volumes.forEach(v => {
+            let kind = Object.keys(v).find(k => k !== 'name')
+            let description = v[kind]
+            kind = kind.toUpperFirstCase()
+            const refNamekey = Object.keys(description).find(k => {
+                return k.endsWith("name") || k.endsWith("Name")
+            })
+            const refName = description[refNamekey]
+            arr.push({ name: v.name, kind, description: JSON.stringify(description), refName })
+        });
+        return arr
+    }
+
+    @computed
+    get volumeMountList() {
+        if (!this.currentElement.spec.template) {
+            return []
+        }
+        let arr = []
+        this.currentElement.spec.template.spec.containers.forEach(container => {
+            if (container.volumeMounts) {
+                container.volumeMounts.forEach(vm => {
+                    const v = this.volumeList.find(v => v.name === vm.name)
+                    arr.push({ name: v.name, kind: v.kind, refName: v.refName, mountPath: vm.mountPath, containerName: container.name })
+                })
+            }
+        })
+        return arr
+    }
+
+    @computed
+    get envList() {
+        if (!this.currentElement.spec.template) {
+            return []
+        }
+        let arr = []
+        this.currentElement.spec.template.spec.containers.forEach(container => {
+            if (container.env) {
+                container.env.forEach(env => {
+                    if (env.valueFrom) {
+                        if (env.valueFrom.configMapKeyRef) {
+                            const { name, key } = env.valueFrom.configMapKeyRef
+                            const obj = this.rootStore.list('cm').find(c => c.metadata.name === name)
+                            arr.push({ containerName: container.name, name: env.name, value: obj.data[key], kind: 'ConfigMap', refName: name })
+                        }
+                        if (env.valueFrom.secretKeyRef) {
+                            const { name, key } = env.valueFrom.secretKeyRef
+                            const obj = this.rootStore.list('secret').find(c => c.metadata.name === name)
+                            arr.push({ containerName: container.name, name: env.name, value: obj.data[key], kind: 'Secret', refName: name })
+                        }
+                        if (env.valueFrom.fieldRef) {
+                            const { fieldPath } = env.valueFrom.fieldRef
+                            let ar = fieldPath.split('.')
+                            let obj = this.currentElement
+                            for (let i = 0; i < ar.length; i++) {
+                                let key = ar[i]
+                                obj = obj[key]
+                            }
+                            arr.push({ containerName: container.name, name: env.name, value: obj, kind: 'ObjectField' })
+                        }
+                    } else {
+                        arr.push({ containerName: container.name, name: env.name, value: env.value })
+                    }
+                })
+            }
+        })
+        return arr
+    }
 }
 
 export class ColumnStore {
@@ -162,15 +240,15 @@ export class ColumnStore {
                     let act = 'error'
                     switch (type) {
                         case 'ADDED':
-                            msg = '新增资源 ' + msg
+                            msg = `新增 ${kind} ${name}`
                             act = 'success'
                             break
                         case 'DELETED':
-                            msg = '删除资源 ' + msg
+                            msg = `删除 ${kind} ${name}`
                             act = 'error'
                             break
                         case 'MODIFIED':
-                            msg = '资源 ' + msg + ' 状态发生改变'
+                            msg = `${kind} ${name} 状态发生改变`
                             act = 'warning'
                             break
                     }
@@ -336,7 +414,6 @@ export class ColumnStore {
                     }
                     return map;
                 });
-                //<Tooltip title={obj}><div ><Alert message={value.phase} type={'warning'} showIcon /></div></Tooltip>
 
                 return arr.map((item, index) => {
                     if (!item.reason) {
@@ -505,7 +582,7 @@ export class ColumnStore {
             render: (v) => v.join(',')
         },
         {
-            dataIndex: ['spec', 'persistentVolumeReclaimPolicy',], title: 'Reclaim Policy', width: 100,
+            dataIndex: ['spec', 'persistentVolumeReclaimPolicy',], title: 'Reclaim Policy', width: 120,
         },
         {
             dataIndex: ['status', 'phase'], title: 'Status', width: 100,
@@ -521,9 +598,9 @@ export class ColumnStore {
             }
 
         },
-        {
-            dataIndex: ['spec', 'storageClassName'], title: 'Storage Class', width: 100,
-        },
+        // {
+        //     dataIndex: ['spec', 'storageClassName'], title: 'Storage Class', width: 100,
+        // },
         this.column.creationTimestamp,
     ]
 
