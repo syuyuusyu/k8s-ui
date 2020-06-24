@@ -5,7 +5,7 @@ import YAML from 'yaml';
 import { host } from '../../config/api';
 import { get, put, del } from '../../config/util'
 
-import { BaseStore } from '../store'
+import { BaseStore, ControllerStore } from '../commonStore'
 
 configure({ enforceActions: 'observed' });
 

@@ -6,7 +6,7 @@ import { host } from '../../config/api';
 import { get, put } from '../../config/util'
 
 
-import { BaseStore } from '../store'
+import { BaseStore } from '../commonStore'
 
 configure({ enforceActions: 'observed' });
 

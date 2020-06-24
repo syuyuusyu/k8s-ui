@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Table, Descriptions, Tag
+    Table, Descriptions, Tag, Tooltip
 } from 'antd';
 import { inject, observer } from 'mobx-react';
 
@@ -77,11 +77,15 @@ class PodTemplate extends Component {
                                         <Descriptions.Item label="Volume Mounts" span={3}>
                                             <Table
                                                 columns={[
-                                                    { dataIndex: 'name', title: 'name', width: 150 },
+                                                    {
+                                                        dataIndex: 'name', title: 'name', width: 120,
+
+                                                    },
                                                     { dataIndex: 'kind', title: 'Kind', width: 100 },
                                                     { dataIndex: 'mountPath', title: 'Mount Path', width: 100 },
+                                                    { dataIndex: 'subPath', title: 'Sub Path', width: 100 },
                                                     {
-                                                        dataIndex: 'refName', title: 'Link', width: 200,
+                                                        dataIndex: 'refName', title: 'Link', width: 100,
                                                         render: (v, record) => {
                                                             if (!v) {
                                                                 return ''
@@ -107,7 +111,17 @@ class PodTemplate extends Component {
                                                     { dataIndex: 'name', title: 'name', width: 120 },
                                                     { dataIndex: 'kind', title: 'Kind', width: 70 },
                                                     {
-                                                        dataIndex: 'refName', title: 'Link', width: 150,
+                                                        dataIndex: 'value', title: 'Value', width: 300,
+                                                        render: v => {
+                                                            if (!v) return ''
+                                                            if (v.length > 40) {
+                                                                return <Tooltip title={v}><div style={{ width: '300px' }}>{v.substr(0, 28) + '...'}</div></Tooltip>
+                                                            }
+                                                            return <div style={{ width: '300px' }}>{v}</div>
+                                                        }
+                                                    },
+                                                    {
+                                                        dataIndex: 'refName', title: 'Link', width: 100,
                                                         render: (v, record) => {
                                                             if (!v) {
                                                                 return ''
@@ -116,7 +130,6 @@ class PodTemplate extends Component {
                                                             return <Tag color="success"><a onClick={() => { this.props.rootStore.menuStore.goto(short, v, null, `/k8s/${short}/detail`) }}>{v}</a></Tag>
                                                         }
                                                     },
-                                                    { dataIndex: 'value', title: 'Value', width: 300 },
                                                 ]}
                                                 rowKey={record => record.name}
                                                 dataSource={store.envList.filter(_ => _.containerName === c.name)}

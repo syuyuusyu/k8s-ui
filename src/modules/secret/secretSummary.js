@@ -153,7 +153,7 @@ class SecretTabs extends Component {
         if (this.state.shouldgo) {
             return (
                 <div>
-                    <Tag color="#108ee9">Secret {store.currentElement.metadata.name}</Tag>
+                    <Tag color="#108ee9" style={{ height: 32, width: 'auto', fontSize: 24, paddingTop: 4 }}>Secret {store.currentElement.metadata.name}</Tag>
                     <Tabs defaultActiveKey="1" tabBarExtraContent={operations}>
                         {/* <TabPane tab="Summary" key="1">
                             <SecretSummary />

@@ -6,7 +6,7 @@ import { createBrowserHistory } from 'history';
 
 import { host } from '../../config/api';
 import { get, put, del } from '../../config/util'
-import { BaseStore } from '../store'
+import { BaseStore, ControllerStore } from '../commonStore'
 
 
 
@@ -39,7 +39,7 @@ export default class PodStore extends BaseStore {
             if (container.volumeMounts) {
                 container.volumeMounts.forEach(vm => {
                     const v = this.volumeList.find(v => v.name === vm.name)
-                    arr.push({ name: v.name, kind: v.kind, refName: v.refName, mountPath: vm.mountPath, containerName: container.name })
+                    arr.push({ name: v.name, kind: v.kind, refName: v.refName, mountPath: vm.mountPath, subPath: vm.subPath, containerName: container.name })
                 })
             }
         })

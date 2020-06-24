@@ -204,7 +204,7 @@ class CmTabs extends Component {
                     >
                         <span>{`确认删除字段 ${store.dataName} ?`}</span>
                     </Modal>
-                    <Tag color="#108ee9"><CmIcon />ConfigMap {store.currentElement.metadata.name}</Tag>
+                    <Tag color="#108ee9" style={{ height: 32, width: 'auto', fontSize: 24, paddingTop: 4 }}><CmIcon />ConfigMap {store.currentElement.metadata.name}</Tag>
                     <Tabs defaultActiveKey="1"
                         tabBarExtraContent={operations}
                         type="editable-card"

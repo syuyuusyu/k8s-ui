@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Modal, Badge, Icon, Input, Table, Dropdown, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Row, Col, Tag
+    Modal, Badge, Icon, Input, Table, Alert, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Row, Col, Tag
 } from 'antd';
 import { Link } from 'react-router-dom';
 const { TabPane } = Tabs;
@@ -70,16 +70,19 @@ class PodInfo extends Component {
                                 {
                                     cspec.command ? <Descriptions.Item label="command" span={3}>{`[${cspec.command.join(',')}]`}</Descriptions.Item> : ''
                                 }
+                                {
+                                    cspec.args ? <Descriptions.Item label="args" span={3}>{`[${cspec.args.join(',')}]`}</Descriptions.Item> : ''
+                                }
                                 {/* ------ state -------- */}
-                                <Descriptions.Item label='state' span={3}>{stateKey}</Descriptions.Item>
+                                <Descriptions.Item label='State' span={3}><Alert message={stateKey} type={stateKey == 'running' ? 'success' : 'error'} showIcon /></Descriptions.Item>
                                 {
                                     c.state[stateKey].message ?
-                                        <Descriptions.Item label="message" span={3}>{c.state[stateKey].message}</Descriptions.Item>
+                                        <Descriptions.Item label="message" span={3}><Alert message={c.state[stateKey].message} type={'info'} /></Descriptions.Item>
                                         : ''
                                 }
                                 {
                                     c.state[stateKey].reason ?
-                                        <Descriptions.Item label="reason" span={3}>{c.state[stateKey].reason}</Descriptions.Item>
+                                        <Descriptions.Item label="reason" span={3}><Alert message={c.state[stateKey].reason} type={'warning'} /></Descriptions.Item>
                                         : ''
                                 }
                                 {
@@ -106,8 +109,9 @@ class PodInfo extends Component {
                                                     { dataIndex: 'name', title: 'name', width: 150 },
                                                     { dataIndex: 'kind', title: 'Kind', width: 100 },
                                                     { dataIndex: 'mountPath', title: 'Mount Path', width: 100 },
+                                                    { dataIndex: 'subPath', title: 'Sub Path', width: 100 },
                                                     {
-                                                        dataIndex: 'refName', title: 'Link', width: 200,
+                                                        dataIndex: 'refName', title: 'Link', width: 100,
                                                         render: (v, record) => {
                                                             if (!v) {
                                                                 return ''
@@ -133,7 +137,17 @@ class PodInfo extends Component {
                                                     { dataIndex: 'name', title: 'name', width: 120 },
                                                     { dataIndex: 'kind', title: 'Kind', width: 70 },
                                                     {
-                                                        dataIndex: 'refName', title: 'Link', width: 150,
+                                                        dataIndex: 'value', title: 'Value', width: 300,
+                                                        render: v => {
+                                                            v = v.trim()
+                                                            if (v.length > 40) {
+                                                                return <Tooltip title={v}><div style={{ width: '300px' }}>{v.substr(0, 28) + '...'}</div></Tooltip>
+                                                            }
+                                                            return <div style={{ width: '300px' }}>{v}</div>
+                                                        }
+                                                    },
+                                                    {
+                                                        dataIndex: 'refName', title: 'Link', width: 100,
                                                         render: (v, record) => {
                                                             if (!v) {
                                                                 return ''
@@ -142,7 +156,6 @@ class PodInfo extends Component {
                                                             return <Tag color="success"><a onClick={() => { this.props.rootStore.menuStore.goto(short, v, null, `/k8s/${short}/detail`) }}>{v}</a></Tag>
                                                         }
                                                     },
-                                                    { dataIndex: 'value', title: 'Value', width: 300 },
                                                 ]}
                                                 rowKey={record => record.name}
                                                 dataSource={store.envList.filter(_ => _.containerName === c.name)}
@@ -315,7 +328,7 @@ class PodTabs extends Component {
             return (
                 // 
                 <div>
-                    <Tag color="#108ee9">Pod {pod.metadata.name}</Tag>
+                    <Tag color="#108ee9" style={{ height: 32, width: 'auto', fontSize: 24, paddingTop: 4 }}>Pod {pod.metadata.name}</Tag>
                     <Tabs defaultActiveKey="1" tabBarExtraContent={operations}>
                         <TabPane tab="Summary" key="1">
                             <PodSummary />

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import {
-    Layout, Menu, Popover, Tooltip, Row, Col, Breadcrumb, notification, Select, Tag, Button, Drawer, Space
+    Layout, Menu, Popover, Tooltip, Row, Col, Breadcrumb, notification, Select, Tag, Button, Drawer, Space,
 } from 'antd';
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 const { Option } = Select
 import { toJS } from 'mobx'
 import { Link } from 'react-router-dom';
@@ -248,6 +248,7 @@ class Main extends Component {
                     <CreateTab />
                     {/* <CodeEditor /> */}
                 </Drawer>
+
             </Layout >
 
         );

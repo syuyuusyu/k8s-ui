@@ -6,10 +6,10 @@ import { host } from '../../config/api';
 import { get, put } from '../../config/util'
 
 
-import { BaseStore } from '../store'
+import { ControllerStore } from '../commonStore'
 
 configure({ enforceActions: 'observed' });
 
-export default class DeployStore extends BaseStore {
+export default class DeployStore extends ControllerStore {
     kind = 'Deployment'
 }
