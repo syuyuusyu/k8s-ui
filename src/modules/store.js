@@ -1,6 +1,6 @@
 import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
 import React, { Component } from 'react';
-import { Tag, Popover, Badge, Tooltip, Alert, notification, message } from 'antd'
+import { Tag, Popover, Badge, Tooltip, Alert, notification, message, } from 'antd'
 import { Link, } from 'react-router-dom';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import YAML from 'yaml';
@@ -70,6 +70,18 @@ export class ColumnStore {
         this.eventSource.onmessage = result => {
             if (result && result.data) {
                 const data = JSON.parse(result.data);
+                if (data.kind === 'NodeMetricsList') {
+                    runInAction(() => {
+                        this.rootStore.store('Node').metricsList = data.items
+                    })
+                    return
+                }
+                if (data.kind === 'PodMetricsList') {
+                    runInAction(() => {
+                        this.rootStore.store('Pod').metricsList = data.items
+                    })
+                    return
+                }
 
                 if (data.type === 'HEARTBEAT') return
                 const { type, object: { kind, metadata: { name, namespace } }, notCache } = data

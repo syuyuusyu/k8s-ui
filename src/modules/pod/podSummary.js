@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import {
-    Modal, Badge, Icon, Input, Table, Alert, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Row, Col, Tag
+    Modal, Badge, Icon, Input, Table, Alert, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Row, Col, Tag, Tooltip
 } from 'antd';
 import { Link } from 'react-router-dom';
 const { TabPane } = Tabs;
 import { inject, observer } from 'mobx-react';
+import { Liquid } from '@ant-design/charts';
 import TerminalConsole from './terminal'
 import LogConsole from './logConsole'
 import { toJS } from 'mobx';
@@ -22,6 +23,7 @@ import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
 import 'codemirror/theme/idea.css';
 import '../codeMirrorStyle.css';
+import { DeleteIcon } from '../../config/icon'
 
 
 @inject('rootStore')
@@ -58,6 +60,7 @@ class PodInfo extends Component {
                     pod.status.containerStatuses.map(c => {
                         let cspec = pod.spec.containers.find(_ => _.name === c.name)
                         let stateKey = Object.keys(c.state)[0]
+                        let met = store.liquidConfig.find(_ => _.name === c.name)
                         return (
                             <Descriptions key={Math.random().toString().substr(2, 10)} title={`Container ${c.name}`} size={'small'} bordered>
                                 <Descriptions.Item label="Image" span={3}>{c.image}</Descriptions.Item>
@@ -101,6 +104,25 @@ class PodInfo extends Component {
                                         : ''
                                 }
                                 {/* ------ state end -------- */}
+                                {
+                                    met ?
+                                        <Descriptions.Item label="Metrics" span={3}>
+                                            {
+                                                met.config ?
+                                                    <Row>
+                                                        {
+                                                            met.config.map(config => <Col key={Math.random().toString().substr(2, 10)} style={{ textAlign: 'center' }} span={12}><Liquid {...config} color="#2db7f5" width={200} height={200} alignTo='middle' /></Col>)
+                                                        }
+                                                    </Row>
+                                                    :
+                                                    <Row>
+                                                        <Col style={{ textAlign: 'center' }} span={12}><Tag color="#2db7f5">CPU使用 {met.cpu}</Tag></Col>
+                                                        <Col style={{ textAlign: 'center' }} span={12}><Tag color="#2db7f5">Memory使用 {met.memory}</Tag></Col>
+                                                    </Row>
+                                            }
+                                        </Descriptions.Item>
+                                        : ''
+                                }
                                 {
                                     store.volumeMountList.filter(_ => _.containerName === c.name).length > 0 ?
                                         <Descriptions.Item label="Volume Mounts" span={3}>
@@ -323,7 +345,7 @@ class PodTabs extends Component {
     render() {
         const store = this.props.rootStore.podStore
         const pod = store.currentElement
-        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm>;
+        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger icon={<DeleteIcon />}>删除</Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
                 // 

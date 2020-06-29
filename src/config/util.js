@@ -53,7 +53,39 @@ export const post = (url, body) => request('POST', url, body);
 export const put = (url, body) => request('PUT', url, body);
 export const del = (url, body) => request('DELETE', url, body);
 
+const { toString } = Object.prototype;
+export const isFunction = function (v) {
+    return toString.call(v) == '[object Function]';
+};
+
+export const isObj = function (v) {
+    return toString.call(v) == '[object Object]';
+};
+
+export const isArrsy = function (v) {
+    return toString.call(v) == '[object Array]';
+};
+
+export const isString = function (v) {
+    return toString.call(v) == '[object String]';
+};
+
 export const convertGiga = (byte) => {
+    if (isString(byte)) {
+        byte = byte.replace(/(\d+)(\w)\w/, (w, p, u) => {
+            switch (u.toUpperCase()) {
+                case 'K':
+                    return Number.parseFloat(p) * 1024
+                case 'M':
+                    return Number.parseFloat(p) * 1024 * 1024
+                case 'G':
+                    return Number.parseFloat(p) * 1024 * 1024 * 1024
+                default:
+                    return p
+            }
+        })
+        byte = Number.parseInt(byte)
+    }
     const units = ['byte', 'KB', 'MB', 'GB', 'TB'];
     for (let i = 0; i < units.length; i++) {
         if (byte < 1024) {

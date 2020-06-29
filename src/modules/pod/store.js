@@ -5,15 +5,77 @@ import { notification } from 'antd'
 import { createBrowserHistory } from 'history';
 
 import { host } from '../../config/api';
-import { get, put, del } from '../../config/util'
+import { get, put, del, convertGigaFormat, convertGiga } from '../../config/util'
 import { BaseStore, ControllerStore } from '../commonStore'
-
-
 
 configure({ enforceActions: 'observed' });
 
 export default class PodStore extends BaseStore {
     kind = 'Pod'
+
+    @observable
+    metricsList = []
+
+    @computed
+    get liquidConfig() {
+        let { metadata: { name: pname, namespace }, spec: { containers: podContainers } } = this.currentElement
+        const metric = toJS(this.metricsList).find(m => m.metadata.name === pname && m.metadata.namespace === namespace)
+        if (!metric) {
+            return []
+        }
+        let { containers: metricContainers } = metric
+        const quota = this.rootStore.list('quota').find(_ => true)
+        if (!quota) {
+            return metricContainers.map(({ name, usage: { memory, cpu } }) => {
+                return { name, cpu, memory: convertGigaFormat(memory) }
+            })
+        }
+
+        return podContainers.map(({ name, resources: { limits: { memory: limitMemory, cpu: limitCpu } } }) => {
+            let { usage: { memory, cpu } } = metricContainers.find(m => m.name === name)
+            limitCpu = Number.parseInt(limitCpu) * 1000
+            cpu = Number.parseInt(cpu)
+            limitMemory = convertGiga(limitMemory).number
+            memory = convertGiga(memory).number
+            return {
+                name,
+                config: [
+                    {
+                        title: {
+                            alignTo: 'middle',
+                            visible: true,
+                            text: 'CPU使用率',
+                        },
+                        description: {
+                            visible: true,
+                            alignTo: 'middle',
+                            text: `共${limitCpu}m已使用${cpu}m`,
+                        },
+                        min: 0,
+                        max: limitCpu,
+                        value: cpu,
+                        statistic: { formatter: (value) => ((100 * value) / limitCpu).toFixed(1) + '%' },
+                    },
+                    {
+                        title: {
+                            alignTo: 'middle',
+                            visible: true,
+                            text: '内存使用率',
+                        },
+                        description: {
+                            visible: true,
+                            alignTo: 'middle',
+                            text: `共${convertGigaFormat(limitMemory)}已使用${convertGigaFormat(memory)}`,
+                        },
+                        min: 0,
+                        max: limitMemory,
+                        value: memory,
+                        statistic: { formatter: (value) => ((100 * value) / limitMemory).toFixed(1) + '%' },
+                    },
+                ]
+            }
+        })
+    }
 
     @computed
     get volumeList() {

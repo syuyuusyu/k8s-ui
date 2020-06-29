@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import {
-    Modal, Badge, Icon, Input, Table, Dropdown, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Tag
+    Modal, Badge, Icon, Input, Table, Dropdown, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Tag, Col, Row
 } from 'antd';
 const { TabPane } = Tabs;
 import { inject, observer } from 'mobx-react';
 import { toJS } from 'mobx';
+
+import { Liquid } from '@ant-design/charts';
 import { Conditions, Metadata } from '../common'
 import { convertGigaFormat } from '../../config/util'
 
@@ -20,6 +22,22 @@ import 'codemirror/theme/ambiance.css';
 import 'codemirror/theme/idea.css';
 import '../codeMirrorStyle.css';
 
+
+@inject('rootStore')
+@observer
+class NodeChart extends Component {
+
+    render() {
+        const store = this.props.rootStore.nodeStore
+        return (
+            <Row >
+                {
+                    store.liquidConfig.map(config => <Col key={Math.random().toString().substr(2, 10)} style={{ textAlign: 'center' }} span={8}><Liquid {...config} width={200} height={230} alignTo='middle' /></Col>)
+                }
+            </Row>
+        )
+    }
+}
 
 @inject('rootStore')
 @observer
@@ -143,6 +161,7 @@ class NodeSummary extends Component {
         const store = this.props.rootStore.nodeStore
         return (
             <div>
+                <NodeChart />
                 <NodeConfiguration />
                 <NodeAddresses />
                 <NodeResources />
@@ -183,7 +202,6 @@ class NodeTabs extends Component {
     static getDerivedStateFromProps(props, state) {
         const store = props.rootStore.nodeStore
         if (!store.currentElement) {
-            props.history.push('/k8s/node');
             return { shouldgo: false }
         }
         return { shouldgo: true }

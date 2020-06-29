@@ -22,7 +22,7 @@ import 'codemirror/theme/ambiance.css';
 import 'codemirror/theme/idea.css';
 import '../codeMirrorStyle.css';
 
-import { CjIcon } from '../../config/icon'
+import { CjIcon, DeleteIcon } from '../../config/icon'
 
 
 @inject('rootStore')
@@ -150,7 +150,7 @@ class CjTabs extends Component {
 
     render() {
         const store = this.props.rootStore.store('cj')
-        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger>删除</Button></Popconfirm>;
+        const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger><DeleteIcon /></Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
                 <div>
