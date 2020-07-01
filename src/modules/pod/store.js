@@ -33,10 +33,10 @@ export default class PodStore extends BaseStore {
 
         return podContainers.map(({ name, resources: { limits: { memory: limitMemory, cpu: limitCpu } } }) => {
             let { usage: { memory, cpu } } = metricContainers.find(m => m.name === name)
-            limitCpu = Number.parseInt(limitCpu) * 1000
+            limitCpu = Number.parseInt(limitCpu) * (limitCpu.endsWith('m') ? 1 : 1000)
             cpu = Number.parseInt(cpu)
-            limitMemory = convertGiga(limitMemory).number
-            memory = convertGiga(memory).number
+            limitMemory = convertGiga(limitMemory)
+            memory = convertGiga(memory)
             return {
                 name,
                 config: [
@@ -65,12 +65,12 @@ export default class PodStore extends BaseStore {
                         description: {
                             visible: true,
                             alignTo: 'middle',
-                            text: `共${convertGigaFormat(limitMemory)}已使用${convertGigaFormat(memory)}`,
+                            text: `共${limitMemory.number + limitMemory.unit}已使用${memory.number + memory.unit}`,
                         },
                         min: 0,
-                        max: limitMemory,
-                        value: memory,
-                        statistic: { formatter: (value) => ((100 * value) / limitMemory).toFixed(1) + '%' },
+                        max: limitMemory.number,
+                        value: memory.number,
+                        statistic: { formatter: (value) => ((100 * value) / limitMemory.number).toFixed(1) + '%' },
                     },
                 ]
             }

@@ -109,14 +109,14 @@ class Main extends Component {
         const menuStore = this.props.rootStore.menuStore;
         //console.log(toJS(menuStore.currentRoute))
         return (
-            <Layout style={{ height: '1000' }}>
+            <Layout style={{ height: '100vh' }}>
 
                 <Sider trigger={null} collapsible collapsed={menuStore.collapsed} theme="light" >
                     <MenuTree />
                 </Sider>
                 <Layout style={{ height: 'auto' }}>
 
-                    <Header style={{ background: '#fff', padding: 6 }}>
+                    <Header style={{ background: '#fff', padding: 6, height: '8vh' }}>
                         <Row gutter={24}>
                             <Col span={1}>
                                 <Button type="primary" onClick={menuStore.toggleCollapsed} >
@@ -153,9 +153,12 @@ class Main extends Component {
                     <Content
                         style={{
                             margin: '12px 8px',
+                            //marginTop: '0',
                             padding: 12,
                             background: '#fff',
-                            minHeight: 800
+                            //minHeight: 800,
+                            height: '92vh',
+                            overflowY: 'scroll'
                         }}
                     >
                         <Switch>

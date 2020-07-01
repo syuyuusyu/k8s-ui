@@ -108,8 +108,10 @@ export class ColumnStore {
                     message[act]({
                         content: <div style={{ float: "right" }}><Tag color={act} onClick={() => { this.rootStore.menuStore.goto(short, name, namespace, `/k8s/${short}/detail`) }}>{msg}</Tag></div>,
                         style: {
-                            marginTop: '45%',
-                            marginLeft: '60%'
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            marginTop: '92vh',
+
                         },
                     })
 
@@ -525,7 +527,6 @@ export class ColumnStore {
                 if (this.rootStore.storeMap[v.kind]) {
                     const kind = v.kind
                     const sname = this.rootStore.shortName(kind)
-                    console.log(sname)
                     const ns = v.namespace
                     return <Tag color="success"><Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link></Tag>
                 }
@@ -607,3 +608,24 @@ export class ColumnStore {
 
 }
 
+
+
+function parse(arr) {
+    let result = arr.filter(o => o.interfaceType == 'com.supermap.services.rest.RestServlet'
+        && o.additions
+        && o.additions.length > 0
+        && o.name.startWith('map')
+    );
+
+    return {
+        success: true,
+        list: result.reduce((a, b, index) => {
+            let current = [];
+            b.additions.forEach(o => {
+                current.push([`${b.url}/maps/${encodeURI(o)}/entireimage.png`, o, b.url])
+            });
+            return a.concat(current);
+        }, [])
+    };
+
+}

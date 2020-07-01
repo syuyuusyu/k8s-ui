@@ -31,9 +31,22 @@ class HpaConfiguration extends Component {
     render() {
         const store = this.props.rootStore.store('hpa')
         const ele = toJS(store.currentElement)
+        const short = this.props.rootStore.shortName(ele.spec.scaleTargetRef.kind)
+        const refName = ele.spec.scaleTargetRef.name
         return (
             <div>
-
+                <Descriptions title={`Info`} size={'small'} bordered>
+                    <Descriptions.Item label="Scale target"><Tag color="success"><a onClick={() => { this.props.rootStore.menuStore.goto(short, refName, null, `/k8s/${short}/detail`) }}>{refName}</a></Tag></Descriptions.Item>
+                    <Descriptions.Item label="Min Replicas">{ele.spec.minReplicas}</Descriptions.Item>
+                    <Descriptions.Item label="Max Replicas">{ele.spec.maxReplicas}</Descriptions.Item>
+                    <Descriptions.Item label="Target CPU Utilization Percentage">{ele.spec.targetCPUUtilizationPercentage}%</Descriptions.Item>
+                </Descriptions>
+                <Descriptions title={`Status`} size={'small'} bordered>
+                    <Descriptions.Item label="Desired Replicas">{ele.status.desiredReplicas}</Descriptions.Item>
+                    <Descriptions.Item label="Current Replicas">{ele.status.currentReplicas}</Descriptions.Item>
+                    <Descriptions.Item label="CurrentCPU Utilization Percentage">{ele.status.currentCPUUtilizationPercentage}%</Descriptions.Item>
+                    <Descriptions.Item label="Last ScaleTime">{ele.status.lastScaleTime}</Descriptions.Item>
+                </Descriptions>
             </div>
         )
     }
@@ -110,7 +123,7 @@ class HpaTabs extends Component {
         if (this.state.shouldgo) {
             return (
                 <div>
-                    <Tag color="#108ee9" style={{ height: 32, width: 'auto', fontSize: 24, paddingTop: 4 }}>Ingress {store.currentElement.metadata.name}</Tag>
+                    <Tag color="#108ee9" style={{ height: 32, width: 'auto', fontSize: 24, paddingTop: 4 }}>HorizontalPodAutoscaler {store.currentElement.metadata.name}</Tag>
                     <Tabs defaultActiveKey="1" tabBarExtraContent={operations}>
                         <TabPane tab="Summary" key="1">
                             <HpaSummary />
