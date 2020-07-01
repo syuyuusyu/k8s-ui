@@ -1,8 +1,7 @@
 /* eslint-disable */
-import React, { Component } from 'react';
-import { inject, observer } from 'mobx-react';
-import { EventSourcePolyfill } from 'event-source-polyfill';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
+import React, {Component} from 'react';
+import {inject, observer} from 'mobx-react';
+import {EventSourcePolyfill} from 'event-source-polyfill';
 //import 'codemirror/mode/verilog/verilog';
 import 'codemirror/mode/diff/diff';
 //
@@ -14,7 +13,7 @@ import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
 import '../codeMirrorStyle.css';
 
-import { host } from '../../config/api'
+import {host} from '../../config/api'
 
 
 @inject('rootStore')
@@ -24,6 +23,7 @@ class LogConsole extends Component {
     state = {
         logText: ''
     }
+
     componentDidMount() {
         this.loadLogs();
         const editor = (document.getElementsByClassName('CodeMirror-sizer'))[0];
@@ -46,7 +46,7 @@ class LogConsole extends Component {
         this.logEventSource.onmessage = result => {
             if (result && result.data) {
                 //console.log(result.data);
-                this.setState({ logText: this.state.logText + result.data });
+                this.setState({logText: this.state.logText + '<br/>' + result.data});
             }
 
 
@@ -67,17 +67,23 @@ class LogConsole extends Component {
 
     render() {
         return (
-            <div className={'pod'} >
-                <CodeMirror
-                    value={this.state.logText}
-                    options={
-                        {
-                            mode: 'diff',
-                            theme: 'material',
-                            lineNumbers: true,
-                        }
-                    }
-                />
+            <div className={'pod'} style={{width: '100%'}}>
+                <div className={'CodeMirror-sizer'} dangerouslySetInnerHTML={{__html: this.state.logText}}
+                     style={{
+                         paddingTop: '10px',
+                         paddingLeft: '30px',
+                         paddingRight: '30px',
+                         margin: '0',
+                         background: 'rgba(0, 0, 0)',
+                         color: 'white',
+                         minHeight: '70vh',
+                         height: '70vh',
+                         width: '120%',
+                         overflow: 'scroll',
+                     }}>
+                    {/*{this.state.logText}*/}
+                    {/*{this.state.logText}*/}
+                </div>
             </div>
         );
     }
