@@ -74,7 +74,7 @@ class LogConsole extends Component {
                 {/*        }*/}
                 {/*    }*/}
                 {/*/>*/}
-                <div className={'CodeMirror-sizer'} dangerouslySetInnerHTML={{__html: this.state.logText}}
+                <div className={'CodeMirror-sizer'} id='code-mirror-editor' dangerouslySetInnerHTML={{__html: this.state.logText}}
                      style={{
                          paddingTop: '10px',
                          paddingLeft: '30px',
