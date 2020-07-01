@@ -64,7 +64,17 @@ class LogConsole extends Component {
     render() {
         return (
             <div className={'pod'} style={{width: '100%'}}>
-                <div className={'CodeMirror-sizer'} id={'code-mirror-editor'} dangerouslySetInnerHTML={{__html: this.state.logText}}
+                {/*<CodeMirror*/}
+                {/*    value={this.state.logText}*/}
+                {/*    options={*/}
+                {/*        {*/}
+                {/*            mode: 'diff',*/}
+                {/*            theme: 'material',*/}
+                {/*            lineNumbers: true,*/}
+                {/*        }*/}
+                {/*    }*/}
+                {/*/>*/}
+                <div className={'CodeMirror-sizer'} dangerouslySetInnerHTML={{__html: this.state.logText}}
                      style={{
                          paddingTop: '10px',
                          paddingLeft: '30px',
@@ -77,6 +87,7 @@ class LogConsole extends Component {
                          width: '120%',
                          overflow: 'scroll',
                      }}>
+                    {/*{this.state.logText}*/}
                     {/*{this.state.logText}*/}
                 </div>
             </div>
