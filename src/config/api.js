@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2020-07-01 13:25:55
+ * @LastEditTime: 2020-07-01 13:26:27
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: /k8s-ui/src/config/api.js
+ */ 
 const API = window.API
 
 /* host */

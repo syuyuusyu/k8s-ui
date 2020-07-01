@@ -26,12 +26,8 @@ class LogConsole extends Component {
 
     componentDidMount() {
         this.loadLogs();
-        const editor = (document.getElementsByClassName('CodeMirror-sizer'))[0];
-        editor.setAttribute('id', 'editor');
-        //TODO
-        console.log(editor);
         this.timer = setInterval(() => {
-            document.getElementById('editor').scrollIntoView(false); // 滚动日志窗口到底部
+            document.getElementById('code-mirror-editor').scrollIntoView(false); // 滚动日志窗口到底部
         }, 1000)
     }
 
@@ -68,7 +64,7 @@ class LogConsole extends Component {
     render() {
         return (
             <div className={'pod'} style={{width: '100%'}}>
-                <div className={'CodeMirror-sizer'} dangerouslySetInnerHTML={{__html: this.state.logText}}
+                <div className={'CodeMirror-sizer'} id={'code-mirror-editor'} dangerouslySetInnerHTML={{__html: this.state.logText}}
                      style={{
                          paddingTop: '10px',
                          paddingLeft: '30px',
@@ -81,7 +77,6 @@ class LogConsole extends Component {
                          width: '120%',
                          overflow: 'scroll',
                      }}>
-                    {/*{this.state.logText}*/}
                     {/*{this.state.logText}*/}
                 </div>
             </div>
