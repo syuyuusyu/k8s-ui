@@ -31,6 +31,10 @@ export default class NodeStore extends BaseStore {
 
         const podNum = this.rootStore.store('Pod').allList.filter(p => p.spec.nodeName === name).length
         const metric = this.metricsList.find(m => m.metadata.name === name)
+        if (!metric || !metric.usage) {
+            return []
+        }
+
         let { usage: { cpu, memory } } = metric
 
         allCpu = Number.parseInt(allCpu) * 1000

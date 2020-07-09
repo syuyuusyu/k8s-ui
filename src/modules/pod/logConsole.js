@@ -27,9 +27,12 @@ class LogConsole extends Component {
     componentDidMount() {
         this.loadLogs();
         this.timer = setInterval(() => {
-            console.log(document.getElementById('code-mirror-editor'))
             document.getElementById('code-mirror-editor').scrollIntoView(false); // 滚动日志窗口到底部
         }, 1000)
+    }
+
+    componentWillUnmount() {
+        alert(1111)
     }
 
 
@@ -52,6 +55,7 @@ class LogConsole extends Component {
         this.logEventSource.onerror = err => {
             console.log('EventSource error: ', err);
         };
+
     }
 
 

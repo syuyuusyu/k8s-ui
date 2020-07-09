@@ -37,8 +37,9 @@ Array.prototype.contain = function (o, id) {
 class CreateStore {
     constructor(rootStore) {
         this.rootStore = rootStore;
-        this.loadRegistryImages()
+        //this.loadRegistryImages()
         this.loadDefinitions()
+        //console.log(111)
     }
 
     hintOpen = true
