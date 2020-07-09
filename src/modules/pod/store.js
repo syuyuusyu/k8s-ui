@@ -68,9 +68,9 @@ export default class PodStore extends BaseStore {
                             text: `共${limitMemory.number + limitMemory.unit}已使用${memory.number + memory.unit}`,
                         },
                         min: 0,
-                        max: limitMemory.number,
-                        value: memory.number,
-                        statistic: { formatter: (value) => ((100 * value) / limitMemory.number).toFixed(1) + '%' },
+                        max: limitMemory.raw,
+                        value: memory.raw,
+                        statistic: { formatter: (value) => ((100 * value) / limitMemory.raw).toFixed(1) + '%' },
                     },
                 ]
             }

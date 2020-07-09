@@ -72,7 +72,8 @@ if (process.env.NODE_ENV === 'development') {
     };
     config.devtool = 'cheap-module-eval-source-map';
     config.devServer = {
-        port: 30001,
+        port: 3000,
+        host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : '0.0.0.0',
         contentBase: path.resolve(__dirname, 'src/public'),
         //before: require(path.resolve(__dirname, 'src/local-service/index.js')),
         hot: false,

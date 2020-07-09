@@ -86,12 +86,14 @@ export const convertGiga = (byte) => {
         })
         byte = Number.parseInt(byte)
     }
+    let raw = byte
     const units = ['byte', 'KB', 'MB', 'GB', 'TB'];
     for (let i = 0; i < units.length; i++) {
         if (byte < 1024) {
             return {
                 number: Math.round(byte * 100) / 100,
                 unit: units[i],
+                raw
             };
         }
         byte /= 1024;
@@ -99,6 +101,7 @@ export const convertGiga = (byte) => {
     return {
         number: Math.round(byte * 100) / 100,
         unit: units[units.length - 1],
+        raw
     };
 };
 

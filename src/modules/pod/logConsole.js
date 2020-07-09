@@ -1,7 +1,7 @@
 /* eslint-disable */
-import React, {Component} from 'react';
-import {inject, observer} from 'mobx-react';
-import {EventSourcePolyfill} from 'event-source-polyfill';
+import React, { Component } from 'react';
+import { inject, observer } from 'mobx-react';
+import { EventSourcePolyfill } from 'event-source-polyfill';
 //import 'codemirror/mode/verilog/verilog';
 import 'codemirror/mode/diff/diff';
 //
@@ -13,7 +13,7 @@ import 'codemirror/theme/material.css';
 import 'codemirror/theme/ambiance.css';
 import '../codeMirrorStyle.css';
 
-import {host} from '../../config/api'
+import { host } from '../../config/api'
 
 
 @inject('rootStore')
@@ -27,6 +27,7 @@ class LogConsole extends Component {
     componentDidMount() {
         this.loadLogs();
         this.timer = setInterval(() => {
+            console.log(document.getElementById('code-mirror-editor'))
             document.getElementById('code-mirror-editor').scrollIntoView(false); // 滚动日志窗口到底部
         }, 1000)
     }
@@ -42,7 +43,7 @@ class LogConsole extends Component {
         this.logEventSource.onmessage = result => {
             if (result && result.data) {
                 //console.log(result.data);
-                this.setState({logText: this.state.logText + '<br/>' + result.data});
+                this.setState({ logText: this.state.logText + '<br/>' + result.data });
             }
 
 
@@ -63,7 +64,7 @@ class LogConsole extends Component {
 
     render() {
         return (
-            <div className={'pod'} style={{width: '100%'}}>
+            <div className={'pod'} style={{ width: '100%' }}>
                 {/*<CodeMirror*/}
                 {/*    value={this.state.logText}*/}
                 {/*    options={*/}
@@ -74,19 +75,20 @@ class LogConsole extends Component {
                 {/*        }*/}
                 {/*    }*/}
                 {/*/>*/}
-                <div className={'CodeMirror-sizer'} id='code-mirror-editor' dangerouslySetInnerHTML={{__html: this.state.logText}}
-                     style={{
-                         paddingTop: '10px',
-                         paddingLeft: '30px',
-                         paddingRight: '30px',
-                         margin: '0',
-                         background: 'rgba(0, 0, 0)',
-                         color: 'white',
-                         minHeight: '70vh',
-                         height: '70vh',
-                         width: '120%',
-                         overflow: 'scroll',
-                     }}>
+
+                <div className={`CodeMirror-sizer`} id='code-mirror-editor' dangerouslySetInnerHTML={{ __html: this.state.logText }}
+                    style={{
+                        paddingTop: '10px',
+                        paddingLeft: '30px',
+                        paddingRight: '30px',
+                        margin: '0',
+                        background: 'rgba(0, 0, 0)',
+                        color: 'white',
+                        minHeight: '70vh',
+                        height: '70vh',
+                        width: '120%',
+                        overflow: 'scroll',
+                    }}>
                     {/*{this.state.logText}*/}
                     {/*{this.state.logText}*/}
                 </div>
