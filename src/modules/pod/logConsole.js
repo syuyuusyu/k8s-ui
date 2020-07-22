@@ -24,14 +24,8 @@ class LogConsole extends Component {
 
     componentDidMount() {
         this.loadLogs();
-        this.timer = setInterval(() => {
-
-        }, 1000);
     }
 
-    componentWillUnmount() {
-        clearInterval(this.timer)
-    }
 
     loadLogs = () => {
         const pod = this.props.rootStore.podStore.currentElement;
@@ -90,11 +84,12 @@ class LogConsole extends Component {
                         paddingLeft: "30px",
                         paddingRight: "30px",
                         margin: "0",
+                        border: "0",
                         background: "rgba(0, 0, 0)",
                         color: "white",
                         minHeight: "70vh",
                         height: "70vh",
-                        width: "120%",
+                        width: "100%",
                         overflow: "scroll",
                     }}
                 >
