@@ -1,4 +1,4 @@
-import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
+import { observable, configure, action, runInAction, computed, toJS, reaction } from 'mobx';
 import React, { Component } from 'react';
 import { Tag, Popover, Badge, Tooltip, Alert, notification, message, } from 'antd'
 import { Link, } from 'react-router-dom';
@@ -39,6 +39,13 @@ export class ColumnStore {
     constructor(rootStore) {
         this.rootStore = rootStore;
         this.loadAll()
+
+        // reaction(
+        //     () => this.currentNamespace,
+        //     () => {
+        //         this.loadNsEle();
+        //     }
+        // )
     }
     @observable
     currentNamespace = '';
@@ -57,6 +64,93 @@ export class ColumnStore {
     }
 
     endpoints = []
+
+    loadNsEle = () => {
+        if (this.eventSource) {
+            this.eventSource.close();
+        }
+        this.eventSource = new EventSourcePolyfill(`${host}/kube/watchNs/${this.currentNamespace}`, {
+            headers: {
+                'access-token': sessionStorage.getItem('access-token') || ''
+            }
+        })
+        this.eventSource.onmessage = result => {
+            if (result && result.data) {
+                const data = JSON.parse(result.data);
+                if (data.kind === 'NodeMetricsList') {
+                    runInAction(() => {
+                        this.rootStore.store('Node').metricsList = data.items
+                    })
+                    return
+                }
+                if (data.kind === 'PodMetricsList') {
+                    runInAction(() => {
+                        this.rootStore.store('Pod').metricsList = data.items
+                    })
+                    return
+                }
+
+                if (data.type === 'HEARTBEAT') return
+                const { type, object: { kind, metadata: { name, namespace } }, notCache } = data
+
+                if (notCache && (!namespace || namespace == this.currentNamespace)) {
+                    let msg = `类型:${kind} ${namespace ? '命名空间:' + namespace : ' '} 名称:${name}`
+                    let act = 'error'
+                    switch (type) {
+                        case 'ADDED':
+                            msg = `新增 ${kind} ${name}`
+                            act = 'success'
+                            break
+                        case 'DELETED':
+                            msg = `删除 ${kind} ${name}`
+                            act = 'error'
+                            break
+                        case 'MODIFIED':
+                            msg = `${kind} ${name} 状态发生改变`
+                            act = 'warning'
+                            break
+                    }
+                    //
+                    const short = this.rootStore.shortName(kind)
+                    message[act]({
+                        content: <div style={{ float: "right" }}><Tag color={act} onClick={() => { this.rootStore.menuStore.goto(short, name, namespace, `/k8s/${short}/detail`) }}>{msg}</Tag></div>,
+                        style: {
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            marginTop: '92vh',
+
+                        },
+                    })
+
+                }
+                const { storeMap } = this.rootStore
+                runInAction(() => {
+                    for (let key in storeMap) {
+                        if (data.object.kind === key) {
+                            switch (key) {
+                                case 'Endpoints':
+                                    this.endpoints.addk8s(data)
+                                    break
+                                default:
+                                    this.rootStore.store(key).allList.addk8s(data)
+
+                            }
+                        }
+                    }
+                })
+
+
+            }
+        };
+        this.eventSource.onerror = err => {
+            console.log('EventSource error: ', err);
+            if (this.eventSource) {
+                this.eventSource.close();
+            }
+        };
+    }
+
+
 
     loadAll = () => {
         if (this.eventSource) {
@@ -128,10 +222,6 @@ export class ColumnStore {
                                     this.rootStore.store(key).allList.addk8s(data)
 
                             }
-
-                            //console.log(storeMap[key])
-                            //console.log(this.rootStore.store(key))
-                            //this.rootStore.store(key).allList.addk8s(data)
                         }
                     }
                 })
@@ -306,7 +396,7 @@ export class ColumnStore {
         this.column.labels,
         {
             dataIndex: 'status', title: 'status', width: 100,
-            render: (value) => `${value.readyReplicas}/${value.availableReplicas}`
+            render: (value) => `${value.readyReplicas ? value.readyReplicas : 0}/${value.availableReplicas ? value.availableReplicas : 0}`
         },
         this.column.creationTimestamp,
         {
@@ -351,7 +441,7 @@ export class ColumnStore {
         this.column.labels,
         {
             dataIndex: 'status', title: 'status', width: 100,
-            render: (value) => `${value.readyReplicas}/${value.availableReplicas}`
+            render: (value) => `${value.readyReplicas ? value.readyReplicas : 0}/${value.availableReplicas ? value.availableReplicas : 0}`
         },
         this.column.creationTimestamp,
         {
@@ -408,7 +498,7 @@ export class ColumnStore {
         {
             dataIndex: ['spec', 'volumeName'], title: 'Volume', width: 200,
             render: name =>
-                <Tag color="success"><Link to={`/k8s/pv/detail`} onClick={() => { this.rootStore.menuStore.goto('pv', name) }}>{name}</Link></Tag>
+                <Tag color="success"><Link to={`/ k8s / pv / detail`} onClick={() => { this.rootStore.menuStore.goto('pv', name) }}>{name}</Link></Tag>
 
         },
         {
@@ -447,7 +537,7 @@ export class ColumnStore {
                     return ''
                 }
                 const { name, namespace } = v
-                return <Tag color="success"><Link to={`/k8s/pvc/detail`} onClick={() => { this.rootStore.menuStore.goto('pvc', name, namespace) }}>{name}</Link></Tag>
+                return <Tag color="success"><Link to={`/ k8s / pvc / detail`} onClick={() => { this.rootStore.menuStore.goto('pvc', name, namespace) }}>{name}</Link></Tag>
             }
 
         },
@@ -492,7 +582,7 @@ export class ColumnStore {
         },
         {
             dataIndex: ['spec', 'ports'], title: 'Ports', width: 100,
-            render: ports => ports.map((p, i) => p.port + '/' + p.protocol + `${i % 3 == 0 ? '\n' : ''}`).join(',')
+            render: ports => ports.map((p, i) => p.port + '/' + p.protocol + `${i % 3 == 0 ? '\n' : ''} `).join(',')
         },
         this.column.creationTimestamp,
     ]
@@ -528,7 +618,7 @@ export class ColumnStore {
                     const kind = v.kind
                     const sname = this.rootStore.shortName(kind)
                     const ns = v.namespace
-                    return <Tag color="success"><Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link></Tag>
+                    return <Tag color="success"><Link to={`/ k8s / ${sname} /detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link ></Tag >
                 }
                 return name
             }
