@@ -22,6 +22,12 @@ export class BaseStore {
     @observable
     allList = []
 
+    @observable
+    createVisible = false
+
+    @action
+    toggleVisible = () => this.createVisible = !this.createVisible
+
     @computed
     get list() {
         return toJS(this.allList).filter(_ => _.metadata.namespace === this.rootStore.columnStore.currentNamespace)

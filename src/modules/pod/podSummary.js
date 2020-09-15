@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Modal, Badge, Icon, Input, Table, Alert, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Row, Col, Tag, Tooltip
+    Modal, Badge, Icon, Input, Table, Alert, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Row, Col, Tag, Tooltip, Drawer
 } from 'antd';
 import { Link } from 'react-router-dom';
 const { TabPane } = Tabs;
@@ -24,6 +24,7 @@ import 'codemirror/theme/ambiance.css';
 import 'codemirror/theme/idea.css';
 import '../codeMirrorStyle.css';
 import { DeleteIcon } from '../../config/icon'
+import Demo from './create.js'
 
 
 @inject('rootStore')
@@ -348,7 +349,6 @@ class PodTabs extends Component {
         const operations = <Popconfirm title="确定删除？" onConfirm={store.delete}><Button danger icon={<DeleteIcon />}>删除</Button></Popconfirm>;
         if (this.state.shouldgo) {
             return (
-                // 
                 <div>
                     <Tag color="#108ee9" style={{ height: 32, width: 'auto', fontSize: 24, paddingTop: 4 }}>Pod {pod.metadata.name}</Tag>
                     <Tabs defaultActiveKey="1" tabBarExtraContent={operations}>

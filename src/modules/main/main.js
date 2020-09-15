@@ -86,6 +86,8 @@ class Main extends Component {
     //UNSAFE_UNSAFE_componentWillUpdate
     static getDerivedStateFromProps(props, state) {
         console.log('main.js');
+        //props.history.push('/k8s/deploy');
+        //props.history.push('/k8s/deploy');
         return state;
     }
 
@@ -108,6 +110,7 @@ class Main extends Component {
         const store = this.props.rootStore.columnStore;
         const menuStore = this.props.rootStore.menuStore;
         //console.log(toJS(menuStore.currentRoute))
+        const kind = this.props.rootStore.menuStore.currentKind
         return (
             <Layout style={{ height: '100vh' }}>
 
@@ -143,6 +146,7 @@ class Main extends Component {
                                     options={toJS(store.allNamespace).map(n => ({ label: n, value: n }))}
                                 />
                             </Col>
+
                             <Col span={2}>
                                 <Button type="primary" onClick={() => { this.setState({ createVisible: true }) }} >
                                     新建
@@ -235,6 +239,7 @@ class Main extends Component {
                             <Route exact path="/k8s/limits/detail" component={LimitsTabs} />
 
                             <Route exact path="/k8s/api" render={() => <SwaggerUI url={`${host}/kube/api`} />} />
+
                         </Switch>
                     </Content>
 
@@ -249,7 +254,7 @@ class Main extends Component {
                     visible={this.state.createVisible}
                 >
                     <CreateTab />
-                    {/* <CodeEditor /> */}
+
                 </Drawer>
 
             </Layout >

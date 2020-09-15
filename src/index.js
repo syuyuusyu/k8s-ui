@@ -9,9 +9,10 @@ import RootStore from './config/rootStore';
 import { Main } from './modules/main'
 
 
-console.log(Main)
+
 const history = createBrowserHistory();
 
+history.push('/k8s/no');
 
 
 ReactDOM.render(

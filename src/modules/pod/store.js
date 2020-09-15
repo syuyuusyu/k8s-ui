@@ -2,16 +2,27 @@ import { observable, configure, action, runInAction, computed, toJS, reaction } 
 import YAML from 'yaml';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import { notification } from 'antd'
-import { createBrowserHistory } from 'history';
+
 
 import { host } from '../../config/api';
 import { get, put, del, convertGigaFormat, convertGiga } from '../../config/util'
 import { BaseStore, ControllerStore } from '../commonStore'
 
+
 configure({ enforceActions: 'observed' });
 
 export default class PodStore extends BaseStore {
     kind = 'Pod'
+
+    constructor(props) {
+        super(props)
+        reaction(
+            () => this.resourceNames,
+            () => {
+
+            }
+        )
+    }
 
     @observable
     metricsList = []
@@ -144,4 +155,19 @@ export default class PodStore extends BaseStore {
         return arr
     }
 
+    @observable
+    createVolumeList = [];
+
+    changeKind = (index) => action((value) => {
+        this.createVolumeList[index] = { resourceNames: this.rootStore.list(value).map(_ => _.metadata.name) }
+    })
+
+    @action
+    addVolume = () => this.createVolumeList.push({ resourceNames: [] })
+
+    @action
+    removeVolume = (index) => this.createVolumeList.splice(index, 1);
+
+    @observable
+    createContainers = [];
 }

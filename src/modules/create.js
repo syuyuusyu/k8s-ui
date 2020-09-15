@@ -1,8 +1,9 @@
 import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
-import { Tag, message, notification, Tooltip, Alert, Row, Col, Button, Tabs } from 'antd'
+import { Tag, message, notification, Tooltip, Alert, Row, Col, Button, Tabs, Select } from 'antd'
 const { TabPane } = Tabs;
+const { Option } = Select
 import YAML from 'yaml';
 import { Link, } from 'react-router-dom';
 import { nsUrl, host } from '../config/api'
@@ -26,6 +27,8 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/idea.css';
 import './codeMirrorStyle.css';
+
+import PodForm from './pod/create';
 
 Array.prototype.valuehint = function () {
     return this.map(k => ({ displayText: k, text: ': ' + k }))
@@ -260,14 +263,37 @@ class CreateYaml extends Component {
 @observer
 class CreateTab extends Component {
 
+    state = {
+        kind: 'pod'
+    }
+
+    getCreateForm = () => {
+        switch (this.state.kind) {
+            case 'pod':
+                return <PodForm />
+        }
+    }
+
     render() {
         const store = this.props.rootStore.createStore
-        const operations = <Button onClick={store.save} >提交</Button>;
+        const operations = <Button onClick={store.save} >提交</Button>
+
         return (
             <div>
                 <Tabs defaultActiveKey="1" tabBarExtraContent={operations}>
                     <TabPane tab="Yaml" key="1">
                         <CreateYaml />
+                    </TabPane>
+                    <TabPane tab="快捷模版" key="2">
+                        <Row>
+                            <Col>
+                                <Select defaultValue="pod" style={{ width: 120 }} onChange={(value) => this.setState({ kind: value })}>
+                                    <Option value="pod">Pod</Option>
+                                </Select>
+                            </Col>
+
+                        </Row>
+                        {this.getCreateForm()}
                     </TabPane>
 
                 </Tabs>

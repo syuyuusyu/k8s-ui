@@ -259,6 +259,13 @@ export default class MenuStore {
             leaf: "1",
             icon: 'ApiIcon',
             path: '/k8s/api'
+        },
+        {
+            code: 'map',
+            text: 'Map',
+            leaf: "1",
+            icon: 'ApiIcon',
+            path: '/k8s/map'
         }
     ]
 
@@ -283,13 +290,19 @@ export default class MenuStore {
             })
         }
         this.rootStore.store(kind).setCurrentName(name)
+        this.currentKind = kind;
+
     }
+
+    @observable
+    currentKind = ''
 
     @observable
     currentRoute = [];
 
     @action
     onMenuClick = (e) => {
+        this.currentKind = e.key;
         let clone = this.menuTreeData.filter(d => d);
         clone.forEach(data => {
             getPathById(e.key, data, (result) => {

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import {
-    Modal, Badge, Icon, Input, Table, Dropdown, Menu, Button, Divider, Popconfirm
+    Modal, Badge, Icon, Input, Table, Dropdown, Menu, Button, Divider, Popconfirm, Drawer
 } from 'antd';
 import { toJS } from 'mobx'
 import { inject, observer } from 'mobx-react';
+
 
 
 @inject('rootStore')
@@ -17,9 +18,11 @@ class PodTable extends Component {
     }
 
     render() {
+        const store = this.props.rootStore.podStore
         //console.log(this.props.rootStore.podStore.list.filter(this.props.filterFun))
         return (
             <div>
+
                 <Table
                     columns={this.props.rootStore.columnStore.podColumns}
                     rowKey={record => record.metadata.uid}
