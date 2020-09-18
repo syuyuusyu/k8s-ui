@@ -7,3 +7,5 @@ docker run -d -p 8002:8002 -v {PATH OF YOUR KUBE COFNF eg ~/.kube/config}:/confi
 ```
 docker run -d -p 3002:3000  --name k8s-ui --restart=always syuyuusyu/k8s-ui:latest
 ```
+
+![](./k8s.gif)
