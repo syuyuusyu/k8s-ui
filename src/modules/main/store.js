@@ -259,13 +259,6 @@ export default class MenuStore {
             leaf: "1",
             icon: 'ApiIcon',
             path: '/k8s/api'
-        },
-        {
-            code: 'map',
-            text: 'Map',
-            leaf: "1",
-            icon: 'ApiIcon',
-            path: '/k8s/map'
         }
     ]
 
