@@ -85,7 +85,7 @@ export default class RootStore {
         'ClusterRoleBinding': { name: 'crb', store: 'crbStore' },
         'LimitRange': { name: 'limits', store: 'limitsStore' },
         'ResourceQuota': { name: 'quota', store: 'quotaStore' },
-        //'Endpoints': {}
+        'Endpoints': {}
     }
 
     store = (name) => {
@@ -105,6 +105,7 @@ export default class RootStore {
     }
 
     shortName = (kind) => {
+        console.log(kind);
         return this.storeMap[kind].name
     }
 

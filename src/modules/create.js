@@ -284,7 +284,7 @@ class CreateTab extends Component {
                     <TabPane tab="Yaml" key="1">
                         <CreateYaml />
                     </TabPane>
-                    <TabPane tab="快捷模版" key="2">
+                    {/* <TabPane tab="快捷模版" key="2">
                         <Row>
                             <Col>
                                 <Select defaultValue="pod" style={{ width: 120 }} onChange={(value) => this.setState({ kind: value })}>
@@ -294,7 +294,7 @@ class CreateTab extends Component {
 
                         </Row>
                         {this.getCreateForm()}
-                    </TabPane>
+                    </TabPane> */}
 
                 </Tabs>
             </div>

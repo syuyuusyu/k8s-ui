@@ -35,6 +35,7 @@ class PodInfo extends Component {
         const store = this.props.rootStore.podStore
 
         const pod = store.currentElement
+        console.log(pod);
         let controlled = []
         if (pod.metadata.ownerReferences) {
             controlled = pod.metadata.ownerReferences.map(ow => ({ name: ow.name, short: this.props.rootStore.shortName(ow.kind) }))
@@ -58,7 +59,7 @@ class PodInfo extends Component {
                     <Descriptions.Item label="Host IP">{pod.status.hostIP}</Descriptions.Item>
                 </Descriptions>
                 {
-                    pod.status.containerStatuses.map(c => {
+                    pod.status.containerStatuses ? pod.status.containerStatuses.map(c => {
                         let cspec = pod.spec.containers.find(_ => _.name === c.name)
                         let stateKey = Object.keys(c.state)[0]
                         let met = store.liquidConfig.find(_ => _.name === c.name)
@@ -215,7 +216,7 @@ class PodInfo extends Component {
                                         : ''
                                 }
                             </Descriptions>)
-                    })
+                    }) : ''
 
                 }
             </div>

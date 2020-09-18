@@ -163,7 +163,14 @@ export class ColumnStore {
         })
         this.eventSource.onmessage = result => {
             if (result && result.data) {
-                const data = JSON.parse(result.data);
+                let data = {}
+                try {
+                    data = JSON.parse(result.data);
+                } catch (e) {
+                    console.error(result);
+                    return;
+                }
+
                 if (data.kind === 'NodeMetricsList') {
                     runInAction(() => {
                         this.rootStore.store('Node').metricsList = data.items

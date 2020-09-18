@@ -112,16 +112,6 @@ if (process.env.NODE_ENV === 'production') {
             filepath: path.resolve(__dirname, 'src/global.js')
         })
     );
-    plugins.push(
-        new AddAssetHtmlPlugin({
-            filepath: path.resolve(__dirname, './yndk.crt')
-        })
-    );
-    plugins.push(
-        new AddAssetHtmlPlugin({
-            filepath: path.resolve(__dirname, './yndk.key')
-        })
-    );
 
     optimization.runtimeChunk = 'single';
     optimization.splitChunks = {
