@@ -26,7 +26,7 @@ Change "~/.kube/config" to your k8s conf file path
 
 ### front
 ```
-docker run -d -p -v ~/global.js:/var/www/global.js 3002:3000  --name k8s-ui --restart=always syuyuusyu/k8s-ui:latest
+docker run -d -p 3000:3000 -v ~/global.js:/var/www/global.js --name k8s-ui --restart=always syuyuusyu/k8s-ui:latest
 ```
 The global.js use to specific URL for service. By default, The content of global.js like is:
 ```
