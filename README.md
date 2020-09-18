@@ -34,7 +34,7 @@ window.API = {
     HOST: 'http://127.0.0.1:8002',
 }
 ```
-if you deploy on local and visit locally. You don't need special global.js. if you deploy on service, change it with counterpart
+if you deploy on local and visit locally. You don't need "-v" special global.js. if you deploy on service, change it with counterpart
 
 
 
