@@ -61,8 +61,8 @@ export default class RootStore {
     }
 
     storeMap = {
-        'Pod': { name: 'pod', store: 'podStore' },
-        'Node': { name: 'no', store: 'nodeStore' },
+        'Pod': { name: 'pod', store: 'podStore', },
+        'Node': { name: 'no', store: 'nodeStore', },
         'Deployment': { name: 'deploy', store: 'deployStore' },
         'ReplicaSet': { name: 'rs', store: 'rsStore' },
         'DaemonSet': { name: 'ds', store: 'dsStore' },

@@ -167,7 +167,7 @@ export class ColumnStore {
                 try {
                     data = JSON.parse(result.data);
                 } catch (e) {
-                    console.error(result);
+                    console.warn(result);
                     return;
                 }
 

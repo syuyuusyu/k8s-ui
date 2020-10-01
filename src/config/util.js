@@ -70,6 +70,14 @@ export const isString = function (v) {
     return toString.call(v) == '[object String]';
 };
 
+export const isNumber = function (v) {
+    return toString.call(v) == '[object Number]'
+}
+
+export const isBool = function (v) {
+    return toString.call(v) == '[object Boolean]'
+}
+
 export const convertGiga = (byte) => {
     if (isString(byte)) {
         byte = byte.replace(/(\d+)(\w)\w/, (w, p, u) => {

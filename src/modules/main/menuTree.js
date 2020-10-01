@@ -52,8 +52,7 @@ class MenuTree extends Component {
             <div style={{
                 overflowY: 'scroll',
                 height: '100vh'
-            }
-            } >
+            }} >
                 <Menu onClick={store.onMenuClick} theme='light' mode="inline"
                     defaultSelectedKeys={['node']}
                     defaultOpenKeys={['application', 'cluster']}
