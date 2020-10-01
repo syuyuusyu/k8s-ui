@@ -40,18 +40,18 @@ import { defaultTo, property } from 'lodash';
 
 const additionApi = {
     "io.k8s.apimachinery.pkg.api.resource.Quantity": {
-        "description": "",
+        "description": "When you specify the resource request for Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on. When you specify a resource limit for a Container, the kubelet enforces those limits so that the running container is not allowed to use more of that resource than the limit you set. The kubelet also reserves at least the request amount of that system resource specifically for that container to use.",
         "type": "object",
         "required": [
             "memory", "cpu"
         ],
         "properties": {
             "memory": {
-                "description": "",
+                "description": "Limits and requests for memory are measured in bytes. You can express memory as a plain integer or as a fixed-point number using one of these suffixes: E, P, T, G, M, K. You can also use the power-of-two equivalents: Ei, Pi, Ti, Gi, Mi, Ki. For example, the following represent roughly the same value:128974848, 129e6, 129M, 123Mi",
                 "type": "string"
             },
             "cpu": {
-                "description": "",
+                "description": "Limits and requests for CPU resources are measured in cpu units. One cpu, in Kubernetes, is equivalent to 1 vCPU/Core for cloud providers and 1 hyperthread on bare-metal Intel processors.",
                 "type": "string"
             },
         }
@@ -334,30 +334,33 @@ class CreateStore {
         if (property.type == 'string') {
             if (property.format) {
                 operation = null
+            } else {
+                operation = 'string'
             }
-            operation = 'string'
         }
         if (property.type == 'integer') {
             operation = 'integer'
         }
         if (property.type == 'object') {
-            let additional = property.additionalProperties
-            if (!additional) {
-                operation = null
+            if (property.properties) {
+                operation = 'definitions'
             }
-            if (additional.$ref) {
-                operation = 'additional_ref'
-            }
-            if (additional.type == 'string') {
-                operation = 'additional_string'
-                if (additional.format == 'byte') {
-                    // binaryData do nothing
+            if (property.additionalProperties) {
+                let additional = property.additionalProperties
+                if (additional.$ref) {
+                    operation = 'additional_ref'
+                }
+                if (additional.type == 'string') {
+                    operation = 'additional_string'
+                    if (additional.format == 'byte') {
+                        // binaryData do nothing
+                        operation = null
+                    }
+                }
+                if (additional.type == 'array') {
+                    //TODO
                     operation = null
                 }
-            }
-            if (additional.type == 'array') {
-                //TODO
-                operation = null
             }
         }
         if (property.type == 'array') {
@@ -377,8 +380,17 @@ class CreateStore {
 
     addproperties = (data, properties, required = []) => {
         const arr = []
+        if (!properties) {
+            return arr
+        }
         Object.keys(properties).forEach(k => {
             let flag = true
+            // if (this.switchProperity(properties[k]) == 'ref') {
+            //     let ref = properties[k].$ref.replace('#/definitions/', '')
+            //     if (!this.switchProperity(this.apiDefinitions[ref])) {
+            //         flag = false
+            //     }
+            // }
             if (/read(-?|\s)only/i.test(properties[k].description)) {
                 flag = false
             }
