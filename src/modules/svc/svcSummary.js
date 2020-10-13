@@ -33,9 +33,14 @@ class SvcConfiguration extends Component {
         return (
             <div>
                 <Descriptions title="Info" size={'small'} bordered>
-                    <Descriptions.Item label="Selectors" span={3}>{
-                        Object.keys(ele.spec.selector).map(key => key + ':' + ele.spec.selector[key]).join(',')
-                    }</Descriptions.Item>
+                    {
+                        ele.spec.selector ?
+                            <Descriptions.Item label="Selectors" span={3}>{
+                                Object.keys(ele.spec.selector).map(key => key + ':' + ele.spec.selector[key]).join(',')
+                            }</Descriptions.Item>
+                            : ''
+                    }
+
                     <Descriptions.Item label="Type" span={3}>{ele.spec.type}</Descriptions.Item>
                     <Descriptions.Item label="Ports" span={3}>{
                         ele.spec.ports.map(p => `${p.port}${p.nodePort ? ':' + p.nodePort : ''}/${p.protocol}->${p.targetPort}`).join(',')

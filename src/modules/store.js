@@ -172,12 +172,14 @@ export class ColumnStore {
                 }
 
                 if (data.kind === 'NodeMetricsList') {
+                    console.log('NodeMetricsList:', data.items)
                     runInAction(() => {
                         this.rootStore.store('Node').metricsList = data.items
                     })
                     return
                 }
                 if (data.kind === 'PodMetricsList') {
+                    console.log('PodMetricsList:', data.items)
                     runInAction(() => {
                         this.rootStore.store('Pod').metricsList = data.items
                     })
@@ -512,7 +514,7 @@ export class ColumnStore {
             dataIndex: ['status', 'capacity', 'storage'], title: 'Capacity', width: 100,
         },
         {
-            dataIndex: ['status', 'accessModes'], title: 'Access Modes', width: 200,
+            dataIndex: ['spec', 'accessModes'], title: 'Access Modes', width: 200,
             render: (v) => v.join(',')
         },
         {
@@ -582,7 +584,7 @@ export class ColumnStore {
             dataIndex: ['spec', 'type'], title: 'Type', width: 100,
         },
         {
-            dataIndex: ['spec', 'clusterIP'], title: 'Type', width: 100,
+            dataIndex: ['spec', 'clusterIP'], title: 'clusterIP', width: 100,
         },
         {
             dataIndex: ['spec', 'externalIPs'], title: 'External IP', width: 200, //TODO array

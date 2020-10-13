@@ -5,7 +5,7 @@ import { notification } from 'antd'
 
 
 import { host } from '../../config/api';
-import { get, put, del, convertGigaFormat, convertGiga } from '../../config/util'
+import { get, put, del, convertGigaFormat, convertGiga, transQuota } from '../../config/util'
 import { BaseStore, ControllerStore } from '../commonStore'
 
 
@@ -35,6 +35,9 @@ export default class PodStore extends BaseStore {
             return []
         }
         let { containers: metricContainers } = metric
+        if (metricContainers.length == 0) {
+            return []
+        }
         const quota = this.rootStore.list('quota').find(_ => true)
         if (!quota) {
             return metricContainers.map(({ name, usage: { memory, cpu } }) => {
@@ -45,7 +48,8 @@ export default class PodStore extends BaseStore {
         return podContainers.map(({ name, resources: { limits: { memory: limitMemory, cpu: limitCpu } } }) => {
             let { usage: { memory, cpu } } = metricContainers.find(m => m.name === name)
             limitCpu = Number.parseInt(limitCpu) * (limitCpu.endsWith('m') ? 1 : 1000)
-            cpu = Number.parseInt(cpu)
+            cpu = Number.parseInt(transQuota(cpu, 'm'))
+
             limitMemory = convertGiga(limitMemory)
             memory = convertGiga(memory)
             return {

@@ -61,7 +61,7 @@ class PvcConfiguration extends Component {
                             : ''
                     }
                     {
-                        ele.spec.resources.requests.storage ?
+                        ele.spec.resources.requests && ele.spec.resources.requests.storage ?
                             <Descriptions.Item label="Storage Requested" span={3}>{ele.spec.resources.requests.storage}</Descriptions.Item>
                             : ''
                     }
@@ -77,7 +77,7 @@ class PvcConfiguration extends Component {
                             : ''
                     }
                     {
-                        ele.status.capacity.storage ?
+                        ele.status.capacity && ele.status.capacity.storage ?
                             <Descriptions.Item label="Total Volume Capacity" span={3}>{ele.status.capacity.storage}</Descriptions.Item>
                             : ''
                     }

@@ -3,7 +3,7 @@ import { notification } from 'antd'
 import YAML from 'yaml';
 
 import { host } from '../../config/api';
-import { get, put, convertGigaFormat } from '../../config/util'
+import { get, put, convertGigaFormat, transQuota } from '../../config/util'
 
 
 import { BaseStore, ControllerStore } from '../commonStore'
@@ -36,9 +36,8 @@ export default class NodeStore extends BaseStore {
         }
 
         let { usage: { cpu, memory } } = metric
-
         allCpu = Number.parseInt(allCpu) * 1000
-        cpu = Number.parseInt(cpu)
+        cpu = Number.parseInt(transQuota(cpu, 'm'))
         const cpuConfig = {
             title: {
                 alignTo: 'middle',
@@ -74,8 +73,9 @@ export default class NodeStore extends BaseStore {
             statistic: { formatter: (value) => ((100 * value) / allPods).toFixed(1) + '%' },
         }
 
-        allMemory = Number.parseFloat(allMemory.replace(/(\d+)\w+/, (w, p) => p)) * 1024
-        memory = Number.parseFloat(memory.replace(/(\d+)\w+/, (w, p) => p)) * 1024
+        allMemory = transUnit(allMemory)
+        memory = transUnit(memory)
+
         const memoryConfig = {
             title: {
                 visible: true,

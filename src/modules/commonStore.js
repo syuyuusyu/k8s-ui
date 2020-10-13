@@ -33,6 +33,11 @@ export class BaseStore {
         return toJS(this.allList).filter(_ => _.metadata.namespace === this.rootStore.columnStore.currentNamespace)
     }
 
+    @computed
+    get nameList() {
+        return this.list.map(_ => _.metadata.name)
+    }
+
     @observable
     currentName = ''
     @action

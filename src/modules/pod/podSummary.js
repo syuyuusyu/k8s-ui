@@ -12,7 +12,7 @@ import { toJS } from 'mobx';
 import { Conditions, Metadata } from '../common'
 import { convertGigaFormat } from '../../config/util'
 import { UnControlled as CodeMirror } from 'react-codemirror2'
-//import {UnControlled as CodeMirror} from 'react-codemirror2'
+
 import 'codemirror/mode/yaml/yaml';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/hint/show-hint.css';

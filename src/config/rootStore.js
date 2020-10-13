@@ -114,6 +114,10 @@ export default class RootStore {
         return store.list
     }
 
+    nameList = (kind) => {
+        return this.store(kind).nameList
+    }
+
     element = (kind) => {
         let store = this.store(kind)
         return store.currentElement

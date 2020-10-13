@@ -117,3 +117,35 @@ export const convertGigaFormat = (byte) => {
     const data = convertGiga(byte);
     return data.number + data.unit;
 };
+
+export const transQuota = (value, unit = '') => {
+    let m = {
+        'Ki': Math.pow(2, 10),
+        'Mi': Math.pow(2, 20),
+        'Gi': Math.pow(2, 30),
+        'Ti': Math.pow(2, 40),
+        'Pi': Math.pow(2, 50),
+        'Ei': Math.pow(2, 60),
+        'n': Math.pow(10, -9),
+        'u': Math.pow(10, -6),
+        'm': Math.pow(10, -3),
+        'K': Math.pow(10, 3),
+        'M': Math.pow(10, 6),
+        'G': Math.pow(10, 9),
+        'T': Math.pow(10, 12),
+        'P': Math.pow(10, 15),
+        'E': Math.pow(10, 18)
+    };
+    for (let p in m) {
+        if (value.indexOf(p) !== -1) {
+            value = parseFloat(value) * m[p];
+            break;
+        }
+    }
+    if (m[unit]) {
+        value = value / m[unit];
+        return value.toFixed(2) + unit;
+    }
+    return value
+};
+

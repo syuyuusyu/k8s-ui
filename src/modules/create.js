@@ -1,20 +1,23 @@
 import { observable, configure, action, runInAction, computed, toJS, reaction } from 'mobx'
 import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
-import { Tag, message, notification, Tooltip, Modal, Row, Col, Button, Tabs, Select, Form, Input, InputNumber, Space } from 'antd'
+import { Tag, message, notification, Tooltip, Modal, Row, Col, Button, Tabs, Select, Form, Input, InputNumber, Space, Collapse } from 'antd'
 import { PlusOutlined, MinusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { SubmitIcon } from '../config/icon'
 
 const { TabPane } = Tabs;
 const { Option } = Select
+const { Panel } = Collapse
 
 import YAML from 'yaml';
-import { nsUrl, host } from '../config/api'
+import { nsUrl, host, registryUrl } from '../config/api'
 import { get, post, isNumber, isBool } from '../config/util'
 import { apiDefinitions } from '../../api';
 
 import { Controlled as CodeMirror } from 'react-codemirror2'
+//import { UnControlled as CodeMirror } from 'react-codemirror2'
+
 import 'codemirror/mode/yaml/yaml'
 import 'codemirror/mode/javascript/javascript';
 
@@ -29,9 +32,8 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/idea.css';
 import './codeMirrorStyle.css';
+import './create.css'
 
-import PodForm from './pod/create';
-import { defaultTo, property } from 'lodash';
 
 // Object.prototype.forEach = function (fn) {
 //     Object.keys(this).forEach(key => fn(key, this[key]));
@@ -39,7 +41,27 @@ import { defaultTo, property } from 'lodash';
 
 
 const additionApi = {
-    "io.k8s.apimachinery.pkg.api.resource.Quantity": {
+    "pod.ResourceRequirements": {
+        "description": "ResourceRequirements describes the compute resource requirements.",
+        "type": "object",
+        "properties": {
+            "requests": {
+                "description": "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/",
+                "additionalProperties": {
+                    "$ref": "#/definitions/pod.resource.Quantity"
+                },
+                "type": "object"
+            },
+            "limits": {
+                "description": "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/",
+                "additionalProperties": {
+                    "$ref": "#/definitions/pod.resource.Quantity"
+                },
+                "type": "object"
+            }
+        }
+    },
+    "pod.resource.Quantity": {
         "description": "When you specify the resource request for Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on. When you specify a resource limit for a Container, the kubelet enforces those limits so that the running container is not allowed to use more of that resource than the limit you set. The kubelet also reserves at least the request amount of that system resource specifically for that container to use.",
         "type": "object",
         "required": [
@@ -56,19 +78,81 @@ const additionApi = {
             },
         }
     },
+    "volume.ResourceRequirements": {
+        "description": "ResourceRequirements describes the compute resource requirements.",
+        "type": "object",
+        "properties": {
+            "requests": {
+                "description": "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/",
+                "additionalProperties": {
+                    "$ref": "#/definitions/volume.resource.Quantity"
+                },
+                "type": "object"
+            },
+        }
+    },
+    "volume.resource.Quantity": {
+        "description": "",
+        "required": [
+            "storage",
+        ],
+        "properties": {
+            "storage": {
+                "description": "",
+                "type": "string"
+            },
+
+        }
+    },
+    "resourceQuotaSpec.hard.Quantity": {
+        "description": "",
+        "required": [
+            "cpu", "memory", "pods"
+        ],
+        "properties": {
+            "cpu": {
+                "description": "Across all pods in a non-terminal state, the sum of CPU  cannot exceed this value.",
+                "type": "string"
+            },
+            "memory": {
+                "description": "Across all pods in a non-terminal state, the sum of memory cannot exceed this value.",
+                "type": "string"
+            },
+            "pods": {
+                "description": "The total number of pods in a non-terminal state that can exist in the namespace. A pod is in a terminal state if .status.phase in (Failed, Succeeded) is true",
+                "type": "string"
+            },
+        }
+    },
+    "limitRange.Quantity": {
+        "description": "",
+        "required": [],
+        "properties": {
+            "cpu": {
+                "description": "",
+                "type": "string"
+            },
+            "memory": {
+                "description": "",
+                "type": "string"
+            },
+        }
+    }
 }
+
+const lightColor = ['#F8F8FF', '#F0F8FF', '#F0FFFF', '#00FF7F', '#FFFFF0', '#FFFAF0']
 
 class CreateStore {
     constructor(rootStore) {
         this.rootStore = rootStore
-        //this.loadRegistryImages()
-        this.loadDefinitions()
+
         //console.log(111)
 
         reaction(
             () => this.kind,
             () => {
                 this.initalTemplateData();
+                //this.formInstance.setFieldsValue({ kind: this.templateData.kind, apiVersion: this.templateData.apiVersion })
             }
         )
 
@@ -76,30 +160,9 @@ class CreateStore {
             () => this.templateData,
             (data) => {
                 console.log('---templateData---change')
-                //this.formInstance.setFieldsValue(data);
+                this.formInstance.setFieldsValue(data);
             }
         )
-    }
-
-    @action
-    changeTab = (key) => {
-        if (key == 2) {
-            if (this.valideCode()) {
-                if (this.yamlJson.length > 0) {
-                    let yamlkind = this.yamlJson[0].kind
-                    if (yamlkind != this.kind) {
-                        this.setKind(this.yamlJson[0].kind)
-                    } else {
-                        this.templateData = this.yamlJson[0]
-                    }
-                }
-            }           //this.templateData = this.yamlJson
-        }
-        if (key == 1) {
-            //this.yamlCurrent = YAML.stringify(toJS({ ...this.templateData }));
-            //console.log(this.yamlCurrent)
-
-        }
     }
 
     @observable
@@ -115,7 +178,7 @@ class CreateStore {
     yamlCurrent = ''
     kindList = ['Pod', 'Deployment', 'ReplicaSet', 'DaemonSet', 'StatefulSet', 'ReplicationController', 'Job', 'CronJob',
         'ConfigMap', 'PersistentVolumeClaim', 'PersistentVolume', 'Secret', 'ServiceAccount', 'Service', 'Ingress', 'HorizontalPodAutoscaler',
-        'Role', 'RoleBinding', 'ClusterRole', 'ClusterRoleBinding']
+        'Role', 'RoleBinding', 'ClusterRole', 'ClusterRoleBinding', 'ResourceQuota', 'LimitRange']
 
     unCreateDefs = []
 
@@ -139,14 +202,33 @@ class CreateStore {
     randomKey = () => Math.random().toString().substr(2, 10)
 
     loadRegistryImages = async () => {
-        let json = await get(`${host}/registry/images`)
+        let json = await get(`${host}/registry/images?registryUrl=${registryUrl}`)
         this.registryImages = json
     }
 
     loadDefinitions = async () => {
         //let json = await get(`${host}/kube/api/definitions`)
-        this.apiDefinitions = apiDefinitions
-        this.apiDefinitions["io.k8s.apimachinery.pkg.api.resource.Quantity"] = additionApi["io.k8s.apimachinery.pkg.api.resource.Quantity"]
+        this.apiDefinitions = await get(`${host}/kube/api/definitions`)
+        Object.keys(additionApi).forEach(key => {
+            this.apiDefinitions[key] = additionApi[key]
+        })
+
+        this.apiDefinitions["io.k8s.api.core.v1.Container"].properties.resources.$ref = '#/definitions/pod.ResourceRequirements'
+        this.apiDefinitions["io.k8s.api.core.v1.EphemeralContainer"].properties.resources.$ref = '#/definitions/pod.ResourceRequirements'
+        this.apiDefinitions["io.k8s.api.core.v1.PersistentVolumeClaimSpec"].properties.resources.$ref = '#/definitions/volume.ResourceRequirements'
+        this.apiDefinitions["io.k8s.api.core.v1.ResourceQuotaSpec"].properties.hard.additionalProperties.$ref = '#/definitions/resourceQuotaSpec.hard.Quantity'
+        let arr1 = ['default', 'min', 'max', 'maxLimitRequestRatio', 'defaultRequest']
+        arr1.forEach(key => {
+            this.apiDefinitions["io.k8s.api.core.v1.LimitRangeItem"].properties[key].additionalProperties.$ref = '#/definitions/limitRange.Quantity'
+        })
+
+        if (registryUrl) {
+            this.apiDefinitions["io.k8s.api.core.v1.Container"].properties.image.selectValue
+                = this.registryImages.map(r => `${registryUrl.replace(/http(?:s?):\/\/(\d+.\d+.\d+.\d+:\d+)/, '$1/')}${r}`)
+        }
+
+        this.apiDefinitions["io.k8s.api.core.v1.PersistentVolumeClaimVolumeSource"].properties.claimName.selectValue = this.rootStore.nameList('pvc')
+        this.apiDefinitions["io.k8s.api.core.v1.ConfigMapVolumeSource"].properties.name.selectValue = this.rootStore.nameList('cm')
     }
 
     valideCode = (edit) => {
@@ -196,7 +278,16 @@ class CreateStore {
 
     saveTemplate = () => {
         this.formInstance.validateFields().then(async (values) => {
-            console.log(values)
+            const formtext = YAML.stringify(this.templateData)
+            let temp = this.yamlCurrent
+            if (temp) {
+                temp += '\n---\n'
+            }
+            temp += formtext
+            runInAction(() => {
+                this.yamlCurrent = temp
+            })
+            this.toggleTemplateFormVisible()
         })
     }
 
@@ -252,9 +343,9 @@ class CreateStore {
             let local = _local.concat(index)
             view.push({
                 type: 'ref', key: `${currentkey}-[${index + 1}]`, value: data, local, property: def.properties,
-                addproperties: this.addproperties(data, def.properties, def.required), action: 'add_ref', required: def.required, description: def.description
+                addproperties: this.addproperties(data, def.properties, def.required), action: 'add_ref', required: def.required, description: def.description, children: []
             })
-            this.createView(view, data, def, local)
+            this.createView(view[view.length - 1].children, data, def, local)
         })
     }
 
@@ -272,13 +363,13 @@ class CreateStore {
                     pushobj = {
                         ...pushobj, addproperties: this.addproperties(value, this.apiDefinitions[ref].properties, this.apiDefinitions[ref].required),
                         property: this.apiDefinitions[ref].properties, action: 'add_ref', required: this.apiDefinitions[ref].required,
-                        description: this.apiDefinitions[ref].description
+                        description: this.apiDefinitions[ref].description, children: []
                     }
                     view.push(pushobj)
-                    this.createView(view, value, this.apiDefinitions[ref], local)
+                    this.createView(view[view.length - 1].children, value, this.apiDefinitions[ref], local)
                     break;
                 case 'string':
-                    view.push(pushobj)
+                    view.push({ ...pushobj, selectValue: property.selectValue })
                     break;
                 case 'integer':
                     view.push(pushobj)
@@ -287,9 +378,9 @@ class CreateStore {
                     view.push(pushobj)
                     break;
                 case 'additional_string':
-                    view.push({ ...pushobj, action: 'add_additional_string', })
+                    view.push({ ...pushobj, action: 'add_additional_string', children: [] })
                     Object.keys(value).forEach(key => {
-                        view.push({ type: switchstr, value: value[key], key: key, local: local, })
+                        view[view.length - 1].children.push({ type: switchstr, value: value[key], key: key, local: local, })
                     })
                     break;
                 case 'additional_ref':
@@ -297,24 +388,23 @@ class CreateStore {
                     pushobj = {
                         ...pushobj, addproperties: this.addproperties(value, this.apiDefinitions[ref].properties, this.apiDefinitions[ref].required),
                         property: this.apiDefinitions[ref].properties, action: 'add_ref', required: this.apiDefinitions[ref].required,
-                        description: this.apiDefinitions[ref].description
+                        description: this.apiDefinitions[ref].description, children: []
                     }
                     view.push(pushobj)
-                    this.createView(view, value, this.apiDefinitions[ref], local)
+                    this.createView(view[view.length - 1].children, value, this.apiDefinitions[ref], local)
                     break;
                 case 'array_ref':
                     ref = property.items.$ref.replace('#/definitions/', '')
-                    console.log('---array_ref', property)
                     view.push({
                         ...pushobj, action: 'add_array_ref', property: this.apiDefinitions[ref].properties,
-                        required: this.apiDefinitions[ref].required,
+                        required: this.apiDefinitions[ref].required, children: []
                     })
-                    this.createArrayView(view, value, this.apiDefinitions[ref], local, k)
+                    this.createArrayView(view[view.length - 1].children, value, this.apiDefinitions[ref], local, k)
                     break;
                 case 'array_string':
-                    view.push({ ...pushobj, action: 'add_array_string', })
+                    view.push({ ...pushobj, action: 'add_array_string', children: [] })
                     value.forEach((v, index) => {
-                        view.push({ type: switchstr, value: v, key: index, local: local.concat(index) })
+                        view[view.length - 1].children.push({ type: switchstr, value: v, key: index, local: local.concat(index) })
                     })
                     break;
                 default:
@@ -479,9 +569,9 @@ class CreateStore {
         }
         const path = this.localToPath(local)
         const _this = this
-        let oldvalue = eval(`_this.templateData.${path}.${oldkey}`)
-        eval(`delete _this.templateData.${path}.${oldkey}`)
-        eval(`_this.templateData.${path}.${newkey}='${oldvalue}'`)
+        let oldvalue = eval(`_this.templateData.${path}['${oldkey}']`)
+        eval(`delete _this.templateData.${path}['${oldkey}']`)
+        eval(`_this.templateData.${path}['${newkey}']='${oldvalue}'`)
     })
 
     onBlurAdditionalStringValue = (local, key) => action((e) => {
@@ -569,153 +659,253 @@ class CreateStore {
 @observer
 class TemplateForm extends Component {
 
+    componentDidMount() {
+        const store = this.props.rootStore.createStore
+        store.loadRegistryImages()
+        store.loadDefinitions()
+    }
+
+    componentWillUnmount() {
+        this.props.rootStore.createStore.setKind('')
+    }
+
+    createField = (view) => {
+        const store = this.props.rootStore.createStore;
+        if (view.type == 'string') {
+            return (
+                <Space key={view.local.join('.')} style={{ display: 'flex', marginLeft: 24, marginBottom: 8, height: 32 }} align="start">
+                    <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                    </Tag>
+                    <Form.Item key={view.local.join('.')} name={view.local}>
+                        {
+                            view.selectValue && view.selectValue.length > 0 ?
+                                <Select style={{ width: 300, }} onSelect={store.editSelectField(view.local)}  >
+                                    {
+                                        view.selectValue.map(v => <Option key={store.randomKey()} value={v}>{v}</Option>)
+                                    }
+                                </Select>
+                                :
+                                <Input style={{ width: 300, }} onBlur={store.editStringField(view.local)} />
+                        }
+                    </Form.Item>
+                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+        if (view.type == 'boolean') {
+            return (
+                <Space key={view.local.join('.')} style={{ display: 'flex', marginLeft: 24, marginBottom: 8, height: 32 }} align="start">
+                    <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                    </Tag>
+                    <Form.Item key={view.local.join('.')} name={view.local}>
+                        <Select style={{ width: 300, }} onSelect={store.editSelectField(view.local)}  >
+                            <Option value={true}>true</Option>
+                            <Option value={false}>false</Option>
+                        </Select>
+                    </Form.Item>
+                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+        if (view.type == 'integer') {
+            return (
+                <Space key={view.local.join('.')} style={{ display: 'flex', marginLeft: 24, marginBottom: 8, height: 32 }} align="start">
+                    <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                    </Tag>
+                    <Form.Item name={view.local} >
+                        <InputNumber style={{ width: 300, }} onBlur={store.editNumField(view.local)} />
+                    </Form.Item>
+                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+        if (view.type == 'additional_string') {
+            return (
+                <Space key={store.randomKey()} style={{ display: 'flex', marginLeft: 24, marginBottom: 8, }} align="start">
+                    <Form.Item noStyle rules={[{ required: true, message: 'key is required', validateTrigger: 'onBlur' }]} >
+                        <Input placeholder="key" style={{ width: 300, }} defaultValue={view.key} onBlur={store.onBlurAdditionalStringkey(view.local, view.key)} />
+                    </Form.Item>
+                    <Form.Item noStyle rules={[{ required: true, message: 'value is required', validateTrigger: 'onBlur' }]} >
+                        <Input placeholder="value" style={{ width: 300, }} defaultValue={view.value} onBlur={store.onBlurAdditionalStringValue(view.local, view.key)} />
+                    </Form.Item>
+                    <Button type="ghost" onClick={store.deleteField(view.local.concat(view.key))} shape="circle" icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+        if (view.type == 'array_string') {
+            console.log('array_string', view)
+            return (
+                <Space key={store.randomKey()} style={{ display: 'flex', marginLeft: 24, marginBottom: 8, }} align="start" >
+                    <Form.Item noStyle name={view.local}>
+                        <Input style={{ width: 300, }} onBlur={store.editStringField(view.local)} />
+                    </Form.Item>
+                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+    }
+
+    createPanelHead = (view, min) => {
+        const store = this.props.rootStore.createStore;
+        if (view.action == 'add_ref') {
+            return (
+                <Space onClick={e => e.stopPropagation()} key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, paddingTop: 0, paddingBottom: 0 }} align="start">
+                    {
+                        view.key ?
+                            <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                                {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                            </Tag>
+                            : ''
+                    }
+                    <Form.Item label={view.key} noStyle name={view.local.concat('action_addObjProperity')}>
+                        <Select style={{ width: 300, }} disabled={view.addproperties.length == 0 ? true : false}  >
+                            {
+                                view.addproperties.map(({ text, required }) => {
+                                    if (required) {
+                                        return <Option key={text} value={text}><span style={{ color: 'red' }}>{text} &nbsp;(required)</span></Option>
+                                    } else {
+                                        return <Option key={text} value={text}>{text}</Option>
+                                    }
+                                })
+                            }
+                        </Select>
+                    </Form.Item>
+                    <Button type="ghost" disabled={view.addproperties.length == 0 ? true : false} shape="circle" onClick={store.addObjProperity(view.local, view.property, 'action_addObjProperity', view.addproperties)} icon={<PlusOutlined />}></Button>
+                    {
+                        min ? '' : <Button type="ghost" disabled={view.local.length == 0 ? true : false} shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                    }
+                </Space>
+            )
+        }
+        if (view.action == 'add_additional_string') {
+            return (
+                <Space key={store.randomKey()} onClick={e => e.stopPropagation()} style={{ display: 'flex', marginBottom: 8 }} align="start">
+                    <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                    </Tag>
+                    <Button type="ghost" shape="circle" onClick={store.addAdditionalString(view.local, view.key)} icon={<PlusOutlined />}></Button>
+                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+        if (view.action == 'add_array_ref') {
+            return (
+                <Space key={store.randomKey()} onClick={e => e.stopPropagation()} style={{ display: 'flex', marginBottom: 8 }} align="start">
+                    <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                    </Tag>
+                    <Button type="ghost" shape="circle" onClick={store.addArrayRef(view.local, view.property)} icon={<PlusOutlined />}></Button>
+                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+        if (view.action == 'add_array_string') {
+            return (
+                <Space key={store.randomKey()} onClick={e => e.stopPropagation()} style={{ display: 'flex', marginBottom: 8 }} align="start">
+                    <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                    </Tag>
+                    <Button type="ghost" shape="circle" onClick={store.addArrayString(view.local)} icon={<PlusOutlined />}></Button>
+                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
+                </Space>
+            )
+        }
+    }
+
+    createView = (list) => {
+        const store = this.props.rootStore.createStore;
+        if (!list) return ''
+        return list.map(view => {
+            if (view.action) {
+                const header = this.createPanelHead(view)
+                return (
+                    <Collapse defaultActiveKey={['1']} bordered={true} key={store.randomKey()} style={{ paddingBottom: 0 }} >
+                        <Panel header={header} key="1" style={{ paddingBottom: 0 }}>
+                            {
+                                this.createView(view.children)
+                            }
+                        </Panel>
+                    </Collapse>
+                )
+            }
+            return this.createField(view)
+        })
+    }
+
+    createInital = () => {
+        const store = this.props.rootStore.createStore;
+        if (store.templateView.length == 0) {
+            return ''
+        }
+        let first = store.templateView[0]
+        const header = this.createPanelHead(first, true)
+        return (
+            <Collapse defaultActiveKey={['1']} style={{}}  >
+                <Panel header={header} key="1" disabled={true} style={{ paddingTop: 0, paddingBottom: 0 }}>
+                    <Space key={'kind'} style={{ display: 'flex', marginBottom: 8, height: 32 }} align="start">
+                        <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                            kind&nbsp;<Tooltip placement="right" title={store.templateView[1].description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                        </Tag>
+                        <Form.Item name='kind'>
+                            <Input style={{ width: 300, }} disabled />
+                        </Form.Item>
+                    </Space>
+                    <Space key='apiVersion' style={{ display: 'flex', marginBottom: 8, height: 32 }} align="start">
+                        <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                            apiVersion&nbsp;<Tooltip placement="right" title={store.templateView[2].description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
+                        </Tag>
+                        <Form.Item name='apiVersion' >
+                            <Input style={{ width: 300, }} disabled />
+                        </Form.Item>
+                    </Space>
+                    {
+                        store.templateView.map((view, index) => {
+                            if (index > 0) {
+                                if (view.action) {
+                                    return (
+                                        <Collapse defaultActiveKey={['1']} bordered={true} key={store.randomKey()}  >
+                                            <Panel header={this.createPanelHead(view)} key="1">
+                                                {
+                                                    this.createView(view.children)
+                                                }
+                                            </Panel>
+                                        </Collapse>
+                                    )
+                                }
+
+                            }
+                        })
+                    }
+                </Panel>
+            </Collapse>
+        )
+    }
+
     render() {
         const store = this.props.rootStore.createStore;
+        console.log('render')
         return <Form ref={store.refFormInstance}>
             <div style={{ marginBottom: 30 }}>
                 <Row>
                     <Col>
-                        <Select style={{ width: 120 }} onChange={store.setKind} value={store.kind}>
-                            {
-                                store.kindList.map(k => <Option key={k} value={k}>{k}</Option>)
-                            }
-                        </Select>
+                        <Space onClick={e => e.stopPropagation()} key={store.randomKey()} style={{ display: 'flex', marginBottom: 8 }} align="start">
+                            <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
+                                select resources
+                            </Tag>
+                            <Select style={{ width: 200 }} onChange={store.setKind} value={store.kind}>
+                                {
+                                    store.kindList.map(k => <Option key={k} value={k}>{k}</Option>)
+                                }
+                            </Select>
+                        </Space>
                     </Col>
                 </Row>
             </div>
             {
-                store.templateView.map(view => {
-                    const marginLeft = view.local.length * 20
-                    if (view.action) {
-                        if (view.action == 'add_ref') {
-                            return (
-                                <Space key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, marginLeft }} align="start">
-                                    {
-                                        view.key ?
-                                            <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
-                                                {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
-                                            </Tag>
-                                            : ''
-                                    }
-                                    <Form.Item label={view.key} noStyle name={view.local.concat('action_addObjProperity')}>
-                                        <Select style={{ width: 300, }} disabled={view.addproperties.length == 0 ? true : false}  >
-                                            {
-                                                view.addproperties.map(({ text, required }) => {
-                                                    if (required) {
-                                                        return <Option key={text} value={text}><span style={{ color: 'red' }}>{text} &nbsp;(required)</span></Option>
-                                                    } else {
-                                                        return <Option key={text} value={text}>{text}</Option>
-                                                    }
-                                                })
-                                            }
-                                        </Select>
-                                    </Form.Item>
-                                    <Button type="ghost" disabled={view.addproperties.length == 0 ? true : false} shape="circle" onClick={store.addObjProperity(view.local, view.property, 'action_addObjProperity', view.addproperties)} icon={<PlusOutlined />}></Button>
-                                    <Button type="ghost" disabled={view.local.length == 0 ? true : false} shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                                </Space>
-                            )
-                        }
-                        if (view.action == 'add_additional_string') {
-                            return (
-                                <Space key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, marginLeft }} align="start">
-                                    <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
-                                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
-                                    </Tag>
-                                    <Button type="ghost" shape="circle" onClick={store.addAdditionalString(view.local, view.key)} icon={<PlusOutlined />}></Button>
-                                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                                </Space>
-                            )
-                        }
-                        if (view.action == 'add_array_ref') {
-                            return (
-                                <Space key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, marginLeft }} align="start">
-                                    <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
-                                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
-                                    </Tag>
-                                    <Button type="ghost" shape="circle" onClick={store.addArrayRef(view.local, view.property)} icon={<PlusOutlined />}></Button>
-                                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                                </Space>
-                            )
-                        }
-                        if (view.action == 'add_array_string') {
-                            return (
-                                <Space key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, marginLeft }} align="start">
-                                    <Tag color="#87d068" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
-                                        {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
-                                    </Tag>
-                                    <Button type="ghost" shape="circle" onClick={store.addArrayString(view.local)} icon={<PlusOutlined />}></Button>
-                                    <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                                </Space>
-                            )
-                        }
-                    }
-
-                    if (view.type == 'string') {
-                        return (
-                            <Space key={view.local.join('.')} style={{ display: 'flex', marginBottom: 8, marginLeft, height: 32 }} align="start">
-                                <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
-                                    {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
-                                </Tag>
-                                <Form.Item key={view.local.join('.')} >
-                                    <Input style={{ width: 300, }} defaultValue={view.value} onBlur={store.editStringField(view.local)} />
-                                </Form.Item>
-                                <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                            </Space>
-                        )
-                    }
-                    if (view.type == 'boolean') {
-                        return (
-                            <Space key={view.local.join('.')} style={{ display: 'flex', marginBottom: 8, marginLeft, height: 32 }} align="start">
-                                <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
-                                    {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
-                                </Tag>
-                                <Form.Item key={view.local.join('.')} >
-                                    <Select style={{ width: 300, }} onSelect={store.editSelectField(view.local)}  >
-                                        <Option value={true}>true</Option>
-                                        <Option value={false}>false</Option>
-                                    </Select>
-                                </Form.Item>
-                                <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                            </Space>
-                        )
-                    }
-                    if (view.type == 'integer') {
-                        return (
-                            <Space key={view.local.join('.')} style={{ display: 'flex', marginBottom: 8, marginLeft, height: 32 }} align="start">
-                                <Tag color="#2db7f5" style={{ height: 31, fontSize: 14, paddingTop: 4 }} >
-                                    {view.key}&nbsp;<Tooltip placement="right" title={view.description} color={'cyan'} ><QuestionCircleOutlined /></Tooltip>
-                                </Tag>
-                                <Form.Item  >
-                                    <InputNumber style={{ width: 300, }} defaultValue={view.value} onBlur={store.editNumField(view.local)} />
-                                </Form.Item>
-                                <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                            </Space>
-                        )
-                    }
-                    if (view.type == 'additional_string') {
-                        return (
-                            <Space key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, marginLeft: marginLeft + 20 }} align="start">
-                                <Form.Item noStyle rules={[{ required: true, message: 'key is required', validateTrigger: 'onBlur' }]} >
-                                    <Input placeholder="key" style={{ width: 300, }} defaultValue={view.key} onBlur={store.onBlurAdditionalStringkey(view.local, view.key)} />
-                                </Form.Item>
-                                <Form.Item noStyle rules={[{ required: true, message: 'value is required', validateTrigger: 'onBlur' }]} >
-                                    <Input placeholder="value" style={{ width: 300, }} defaultValue={view.value} onBlur={store.onBlurAdditionalStringValue(view.local, view.key)} />
-                                </Form.Item>
-                                <Button type="ghost" onClick={store.deleteField(view.local.concat(view.key))} shape="circle" icon={<MinusOutlined />}></Button>
-                            </Space>
-                        )
-                    }
-                    if (view.type == 'array_string') {
-                        return (
-                            <Space key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, marginLeft: marginLeft + 20 }} align="start" >
-                                <Form.Item noStyle>
-                                    <Input style={{ width: 300, }} defaultValue={view.value} onBlur={store.editStringField(view.local)} />
-                                </Form.Item>
-                                <Button type="ghost" shape="circle" onClick={store.deleteField(view.local)} icon={<MinusOutlined />}></Button>
-                            </Space>
-                        )
-                    }
-                })
+                this.createInital()
             }
         </Form >
     }
@@ -731,21 +921,19 @@ class CreateYaml extends Component {
 
     render() {
         const store = this.props.rootStore.createStore
-
         return (
             <div className={'pod'}>
                 <CodeMirror
                     style={{ height: '700px', paddingBottom: '20px' }}
-                    value={toJS(store.yamlCurrent)}
+                    value={store.yamlCurrent}
                     options={
                         {
                             mode: 'yaml',
                             theme: 'idea',
-                            lineNumbers: true,
-                            lineWrapping: true,
+                            lineNumbers: true
                         }
                     }
-                    onChange={store.onEditor}
+                    onBeforeChange={store.onEditor}
                 />
             </div>
         )
@@ -771,7 +959,8 @@ class CreateTab extends Component {
                     visible={store.templateFormVisible}
                     onOk={store.saveTemplate}
                     onCancel={store.toggleTemplateFormVisible}
-                    width={1000}
+                    destroyOnClose={true}
+                    width={1200}
                 >
                     <TemplateForm />
                 </Modal>
