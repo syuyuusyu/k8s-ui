@@ -32,6 +32,7 @@ The global.js use to specific URL for service. By default, The content of global
 ```
 window.API = {
     HOST: 'http://127.0.0.1:8002',
+    REGISTRY: 'http://127.0.0.1:5000'
 }
 ```
 if you deploy on local and visit locally. You don't need "-v" special global.js. if you deploy on service, change it with counterpart
