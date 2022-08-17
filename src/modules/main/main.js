@@ -39,7 +39,9 @@ import { QuotaTable, QuotaTabs } from '../quota'
 
 import SwaggerUI from "swagger-ui-react"
 import "swagger-ui-react/swagger-ui.css"
+
 import { host } from '../../config/api'
+console.log('get host:', host)
 
 import {
     MenuUnfoldOutlined,
@@ -70,7 +72,7 @@ const PropsRoute = ({ component, ...rest }) => {
 class Main extends Component {
 
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
             collapsed: false,
             createVisible: false
@@ -88,6 +90,21 @@ class Main extends Component {
         console.log('main.js');
         //props.history.push('/k8s/deploy');
         //props.history.push('/k8s/deploy');
+        let reloadflag = false
+        if (props.host) {
+            if (!window.API) window.API = {}
+            window.API.HOST = props.host
+            reloadflag = true
+        }
+        if (props.registry) {
+            if (!window.API) window.API = {}
+            window.API.REGISTRY = props.registry
+            reloadflag = true
+        }
+        if (reloadflag) {
+            require('../../config/api')
+            console.log(host)
+        }
         return state;
     }
 
@@ -103,7 +120,6 @@ class Main extends Component {
             console.log(key)
             this.props.rootStore.menuStore.onMenuClick({ key })
         }
-
     }
 
     render() {
@@ -113,12 +129,10 @@ class Main extends Component {
         const kind = this.props.rootStore.menuStore.currentKind
         return (
             <Layout style={{ height: '100vh' }}>
-
-                <Sider trigger={null} collapsible collapsed={menuStore.collapsed} theme="light" >
+                <Sider trigger={null} collapsible collapsed={menuStore.collapsed} theme="light" width={260}>
                     <MenuTree />
                 </Sider>
                 <Layout style={{ height: 'auto' }}>
-
                     <Header style={{ background: '#fff', padding: 6, height: '8vh' }}>
                         <Row gutter={24}>
                             <Col span={1}>
@@ -127,7 +141,6 @@ class Main extends Component {
                                 </Button>
                             </Col>
                             <Col span={16} >
-
                                 <Breadcrumb style={{ margin: '20px 4px' }}>
                                     < Breadcrumb.Item > <CodeOutlined /></Breadcrumb.Item>
                                     {
@@ -146,7 +159,6 @@ class Main extends Component {
                                     options={toJS(store.allNamespace).map(n => ({ label: n, value: n }))}
                                 />
                             </Col>
-
                             <Col span={2}>
                                 <Button type="primary" onClick={() => { this.setState({ createVisible: true }) }} >
                                     新建
@@ -247,7 +259,6 @@ class Main extends Component {
                 <Drawer
                     title="新建资源"
                     placement="right"
-                    closable={false}
                     width={1200}
                     closable={true}
                     onClose={() => { this.setState({ createVisible: false }) }}

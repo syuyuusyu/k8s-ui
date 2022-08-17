@@ -1,0 +1,29 @@
+
+
+GET http://192.168.50.28:8002/kube/allnamespace
+
+###
+get http://192.168.50.28:8002/kube/api/definitions
+
+###
+get http://127.0.0.1:5000/v2/_catalog
+
+###
+get http://192.168.50.28:8002/registry/images?registryUrl=http://192.168.50.28:5000
+
+###
+POST https://ele-dataquery.yndk.cn/login  HTTP/1.1
+content-type: application/json
+
+{
+    "user_name": "admin", "password": "111111"
+}
+
+
+###
+POST https://ele-dataquery.yndk.cn/login HTTP/1.1
+content-type: application/json
+
+{
+    "user_name": "admin", "password": "111111"
+}

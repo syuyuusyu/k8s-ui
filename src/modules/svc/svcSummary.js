@@ -42,9 +42,13 @@ class SvcConfiguration extends Component {
                     }
 
                     <Descriptions.Item label="Type" span={3}>{ele.spec.type}</Descriptions.Item>
-                    <Descriptions.Item label="Ports" span={3}>{
-                        ele.spec.ports.map(p => `${p.port}${p.nodePort ? ':' + p.nodePort : ''}/${p.protocol}->${p.targetPort}`).join(',')
-                    }</Descriptions.Item>
+                    {
+                        ele.spec.ports ?
+                            <Descriptions.Item label="Ports" span={3}>{
+                                ele.spec.ports.map(p => `${p.port}${p.nodePort ? ':' + p.nodePort : ''}/${p.protocol}->${p.targetPort}`).join(',')
+                            }</Descriptions.Item>
+                            : ''
+                    }
                     <Descriptions.Item label="Cluster IP" span={3}>{ele.spec.clusterIP}</Descriptions.Item>
                     <Descriptions.Item label="External IPs" span={3}>{ele.spec.externalIPs}</Descriptions.Item>
                 </Descriptions>
@@ -62,9 +66,13 @@ class SvcConfiguration extends Component {
 @observer
 class SvcSummary extends Component {
     filterFun = (pod) => {
-        const selector = this.props.rootStore.element('svc').spec.selector
-        let labels = pod.metadata.labels
         let flag = false
+        const selector = this.props.rootStore.element('svc').spec.selector
+        if (!selector) {
+            return flag
+        }
+        let labels = pod.metadata.labels
+
         if (!labels) return flag
         for (let key in labels) {
             if (selector[key] && selector[key] === labels[key]) {

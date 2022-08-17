@@ -33,6 +33,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/idea.css';
 import './codeMirrorStyle.css';
 import './create.css'
+import { sortedLastIndexBy } from 'lodash';
 
 
 // Object.prototype.forEach = function (fn) {
@@ -217,10 +218,10 @@ class CreateStore {
         this.apiDefinitions["io.k8s.api.core.v1.EphemeralContainer"].properties.resources.$ref = '#/definitions/pod.ResourceRequirements'
         this.apiDefinitions["io.k8s.api.core.v1.PersistentVolumeClaimSpec"].properties.resources.$ref = '#/definitions/volume.ResourceRequirements'
         this.apiDefinitions["io.k8s.api.core.v1.ResourceQuotaSpec"].properties.hard.additionalProperties.$ref = '#/definitions/resourceQuotaSpec.hard.Quantity'
-        let arr1 = ['default', 'min', 'max', 'maxLimitRequestRatio', 'defaultRequest']
-        arr1.forEach(key => {
-            this.apiDefinitions["io.k8s.api.core.v1.LimitRangeItem"].properties[key].additionalProperties.$ref = '#/definitions/limitRange.Quantity'
-        })
+
+            ;['default', 'min', 'max', 'maxLimitRequestRatio', 'defaultRequest'].forEach(key => {
+                this.apiDefinitions["io.k8s.api.core.v1.LimitRangeItem"].properties[key].additionalProperties.$ref = '#/definitions/limitRange.Quantity'
+            })
 
         if (registryUrl) {
             this.apiDefinitions["io.k8s.api.core.v1.Container"].properties.image.selectValue
@@ -245,10 +246,10 @@ class CreateStore {
                 edit.setValue(json);
                 this.yamlCurrent = YAML.stringify(json);
             }
-            return true;
+            return true
         } catch (e) {
-            message.error(e.toLocaleString());
-            return false;
+            message.error(e.toLocaleString())
+            return false
         }
     };
 
@@ -300,6 +301,8 @@ class CreateStore {
             this.templateData = this.yamlJson[0]
             return
         }
+        console.log(this.kind)
+        console.log(this.kindDef(this.kind))
         let def = this.apiDefinitions[this.kindDef(this.kind)];
         let requiredObj = {};
         Object.keys(def.required ? def.required : []).forEach(p => {
@@ -415,6 +418,9 @@ class CreateStore {
 
     switchProperity = (property) => {
         let operation = null
+        if (!property) {
+            return operation
+        }
         if (property.$ref) {
             operation = 'ref'
         }
@@ -661,7 +667,7 @@ class TemplateForm extends Component {
 
     componentDidMount() {
         const store = this.props.rootStore.createStore
-        store.loadRegistryImages()
+        //store.loadRegistryImages()
         store.loadDefinitions()
     }
 
@@ -946,6 +952,11 @@ class CreateYaml extends Component {
 @observer
 class CreateTab extends Component {
 
+    componentDidMount() {
+        const store = this.props.rootStore.createStore
+        store.loadRegistryImages()
+    }
+
     render() {
         const store = this.props.rootStore.createStore
         const operations = <Space key={store.randomKey()} style={{ display: 'flex', marginBottom: 8, }} align="start" >
@@ -973,5 +984,6 @@ class CreateTab extends Component {
         )
     }
 }
+
 
 export { CreateTab, CreateStore }

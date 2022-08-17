@@ -22,7 +22,6 @@ Array.prototype.addk8s = function (o) {
         }
         return
     }
-
     if (this.idindex.includes(obj.metadata.uid)) {
         let index = this.idindex.indexOf(obj.metadata.uid)
         this.splice(index, 1);
@@ -30,7 +29,6 @@ Array.prototype.addk8s = function (o) {
     }
     this.idindex.push(obj.metadata.uid);
     this.push(obj)
-
 }
 
 
@@ -229,13 +227,10 @@ export class ColumnStore {
                                     break
                                 default:
                                     this.rootStore.store(key).allList.addk8s(data)
-
                             }
                         }
                     }
                 })
-
-
             }
         };
         this.eventSource.onerror = err => {
@@ -591,7 +586,10 @@ export class ColumnStore {
         },
         {
             dataIndex: ['spec', 'ports'], title: 'Ports', width: 100,
-            render: ports => ports.map((p, i) => p.port + '/' + p.protocol + `${i % 3 == 0 ? '\n' : ''} `).join(',')
+            render: ports => {
+                if (!ports) return ''
+                return ports.map((p, i) => p.port + '/' + p.protocol + `${i % 3 == 0 ? '\n' : ''} `).join(',')
+            }
         },
         this.column.creationTimestamp,
     ]

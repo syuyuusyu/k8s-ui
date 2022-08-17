@@ -13,6 +13,7 @@ const API = window.API;
 // export let host = "http://10.10.50.199:30082";
 // export let wsUrl = `ws://10.10.50.199:30082/pod-terminal`;
 // export let nsUrl = "http://10.10.50.199:30082/kube/allnamespace";
+// export let registryUrl = 'http://10.10.50.199:5000'
 
 
 // export let host = 'http://192.168.50.28:8002';
@@ -32,5 +33,8 @@ if (API) {
 	nsUrl = API.HOST + '/kube/allnamespace';
 	if (API.REGISTRY) {
 		registryUrl = API.REGISTRY
+	}
+	if (API.NSURL) {
+		nsUrl = API.NSURL
 	}
 }

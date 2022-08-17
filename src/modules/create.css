@@ -1,0 +1,13 @@
+.ant-collapse-content > .ant-collapse-content-box{
+    padding-bottom: 0px;
+}
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header{
+    padding-top: 4px;
+    padding-bottom: 0px;
+}
+
+.ant-collapse-content > .ant-collapse-content-box{
+    padding-top: 4px;
+}
+

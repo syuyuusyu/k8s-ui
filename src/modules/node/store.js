@@ -73,8 +73,8 @@ export default class NodeStore extends BaseStore {
             statistic: { formatter: (value) => ((100 * value) / allPods).toFixed(1) + '%' },
         }
 
-        allMemory = transUnit(allMemory)
-        memory = transUnit(memory)
+        allMemory = transQuota(allMemory)
+        memory = transQuota(memory)
 
         const memoryConfig = {
             title: {
