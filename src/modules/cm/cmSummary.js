@@ -1,4 +1,5 @@
 
+// @ts-nocheck
 import React, { Component } from 'react';
 import {
     Modal, Badge, Icon, Input, Table, Dropdown, Menu, Button, Divider, Popconfirm, Descriptions, Tabs, Tag, Row, Col, notification

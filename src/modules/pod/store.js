@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { observable, configure, action, runInAction, computed, toJS, reaction } from 'mobx';
 import YAML from 'yaml';
 import { EventSourcePolyfill } from 'event-source-polyfill';
@@ -94,7 +95,7 @@ export default class PodStore extends BaseStore {
 
     @computed
     get volumeList() {
-        const volumes = this.currentElement.spec.volumes
+        const volumes = this.currentElement.spec.volumes || []
         let arr = []
         volumes.forEach(v => {
             let kind = Object.keys(v).find(k => k !== 'name')

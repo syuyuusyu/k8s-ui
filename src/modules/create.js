@@ -203,8 +203,9 @@ class CreateStore {
     randomKey = () => Math.random().toString().substr(2, 10)
 
     loadRegistryImages = async () => {
-        let json = await get(`${host}/registry/images?registryUrl=${registryUrl}`)
-        this.registryImages = json
+        // let json = await get(`${host}/registry/images?registryUrl=${registryUrl}`)
+        // this.registryImages = json
+        this.registryImages = []
     }
 
     loadDefinitions = async () => {
@@ -267,7 +268,7 @@ class CreateStore {
             let json = await post(`${host}/kube/namespace/${ns}/${kind}`, v)
             if (json.success) {
                 notification.info({
-                    message: `${kind} ${name}新建成功`
+                    message: `${kind} ${name} create success`
                 })
             } else {
                 notification.error({

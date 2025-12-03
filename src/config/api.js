@@ -9,22 +9,21 @@
 
 const API = window.API;
 
-/* host */
-// export let host = "http://10.10.50.199:30082";
-// export let wsUrl = `ws://10.10.50.199:30082/pod-terminal`;
-// export let nsUrl = "http://10.10.50.199:30082/kube/allnamespace";
-// export let registryUrl = 'http://10.10.50.199:5000'
+export let host = 'http://74.48.18.221:9008';
+export let wsUrl = `wss://74.48.18.221:9008/pod-terminal`;
+export let nsUrl = 'http://74.48.18.221:9008/kube/allnamespace'
+export let registryUrl = 'http://192.168.50.28:5000'
 
 
-// export let host = 'http://192.168.50.28:8002';
-// export let wsUrl = `ws://192.168.50.28:8002/pod-terminal`;
-// export let nsUrl = 'http://192.168.50.28:8002/kube/allnamespace'
+// export let host = 'https://www.51bqm.com:4022';
+// export let wsUrl = `wss://www.51bqm.com:4022/pod-terminal`;
+// export let nsUrl = 'https://www.51bqm.com:4022/kube/allnamespace'
 // export let registryUrl = 'http://192.168.50.28:5000'
 
-export let host = 'http://127.0.0.1:8002';
-export let wsUrl = `ws://127.0.0.1:8002/pod-terminal`;
-export let nsUrl = 'http://127.0.0.1:8002/kube/allnamespace'
-export let registryUrl = 'http://127.0.0.1:5000'
+// export let host = 'http://127.0.0.1:9008';
+// export let wsUrl = `ws://127.0.0.1:9008/pod-terminal`;
+// export let nsUrl = 'http://127.0.0.1:9008/kube/allnamespace'
+// export let registryUrl = 'https://swr.cn-north-1.myhuaweicloud.com'
 
 
 if (API) {

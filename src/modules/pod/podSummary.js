@@ -163,6 +163,7 @@ class PodInfo extends Component {
                                                     {
                                                         dataIndex: 'value', title: 'Value', width: 300,
                                                         render: v => {
+                                                            if(!v) return ''
                                                             v = v.trim()
                                                             if (v.length > 40) {
                                                                 return <Tooltip title={v}><div style={{ width: '300px' }}>{v.substr(0, 28) + '...'}</div></Tooltip>

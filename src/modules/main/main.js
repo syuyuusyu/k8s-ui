@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Component } from 'react';
 import {
     Layout, Menu, Popover, Tooltip, Row, Col, Breadcrumb, notification, Select, Tag, Button, Drawer, Space,
@@ -161,7 +162,7 @@ class Main extends Component {
                             </Col>
                             <Col span={2}>
                                 <Button type="primary" onClick={() => { this.setState({ createVisible: true }) }} >
-                                    新建
+                                    CREATE
                                 </Button>
                             </Col>
                         </Row>
@@ -257,7 +258,7 @@ class Main extends Component {
 
                 </Layout>
                 <Drawer
-                    title="新建资源"
+                    title="create"
                     placement="right"
                     width={1200}
                     closable={true}

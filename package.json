@@ -79,8 +79,8 @@
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "cross-env NODE_ENV=development webpack-dev-server --mode development",
-        "build": "cross-env NODE_ENV=production webpack --mode production",
+        "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=development webpack-dev-server --mode development",
+        "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production webpack --mode production",
         "pack": "./node_modules/.bin/babel src -d dist"
     },
     "keywords": [],

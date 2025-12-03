@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { observable, configure, action, runInAction, computed, toJS } from 'mobx';
 import React, { Component } from 'react';
 import { Tag, Popover, Badge, Tooltip, Alert, notification, message } from 'antd'
@@ -80,6 +81,8 @@ export class BaseStore {
         if (!this.valideCode()) return
         delete this.yamlJson.status
         delete this.yamlJson.metadata.creationTimestamp
+        delete this.yamlJson.metadata.managedFields
+        console.log(this.yamlJson)
         let json = await put(`${host}/kube/${this.kind}`, this.yamlJson);
         notification[json.success ? 'info' : 'error']({
             message: json.msg

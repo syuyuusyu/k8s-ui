@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { observable, configure, action, runInAction, computed, toJS, reaction } from 'mobx';
 import React, { Component } from 'react';
 import { Tag, Popover, Badge, Tooltip, Alert, notification, message, } from 'antd'
@@ -28,6 +29,9 @@ Array.prototype.addk8s = function (o) {
         this.idindex.splice(index, 1);
     }
     this.idindex.push(obj.metadata.uid);
+    if(obj.metadata.managedFields){
+        delete obj.metadata.managedFields
+    }
     this.push(obj)
 }
 
@@ -92,24 +96,25 @@ export class ColumnStore {
                 const { type, object: { kind, metadata: { name, namespace } }, notCache } = data
 
                 if (notCache && (!namespace || namespace == this.currentNamespace)) {
-                    let msg = `类型:${kind} ${namespace ? '命名空间:' + namespace : ' '} 名称:${name}`
+                    let msg = `kind:${kind} ${namespace ? 'namespace:' + namespace : ' '} name:${name}`
                     let act = 'error'
                     switch (type) {
                         case 'ADDED':
-                            msg = `新增 ${kind} ${name}`
+                            msg = `add ${kind} ${name}`
                             act = 'success'
                             break
                         case 'DELETED':
-                            msg = `删除 ${kind} ${name}`
+                            msg = `del ${kind} ${name}`
                             act = 'error'
                             break
                         case 'MODIFIED':
-                            msg = `${kind} ${name} 状态发生改变`
+                            msg = `${kind} ${name} modified`
                             act = 'warning'
                             break
                     }
                     //
                     const short = this.rootStore.shortName(kind)
+                    alert(111)
                     message[act]({
                         content: <div style={{ float: "right" }}><Tag color={act} onClick={() => { this.rootStore.menuStore.goto(short, name, namespace, `/k8s/${short}/detail`) }}>{msg}</Tag></div>,
                         style: {
@@ -186,21 +191,21 @@ export class ColumnStore {
 
                 if (data.type === 'HEARTBEAT') return
                 const { type, object: { kind, metadata: { name, namespace } }, notCache } = data
-
+                console.log(data)
                 if (notCache && (!namespace || namespace == this.currentNamespace)) {
-                    let msg = `类型:${kind} ${namespace ? '命名空间:' + namespace : ' '} 名称:${name}`
+                    let msg = `kind:${kind} ${namespace ? 'namespace:' + namespace : ' '} name:${name}`
                     let act = 'error'
                     switch (type) {
                         case 'ADDED':
-                            msg = `新增 ${kind} ${name}`
+                            msg = `add ${kind} ${name}`
                             act = 'success'
                             break
                         case 'DELETED':
-                            msg = `删除 ${kind} ${name}`
+                            msg = `del ${kind} ${name}`
                             act = 'error'
                             break
                         case 'MODIFIED':
-                            msg = `${kind} ${name} 状态发生改变`
+                            msg = `${kind} ${name} modified`
                             act = 'warning'
                             break
                     }
@@ -285,9 +290,9 @@ export class ColumnStore {
         let hour = Math.floor(interval / 60 / 60 / 1000 % 24)
         let min = Math.floor(interval / 60 / 1000 % 60)
         if (day < 1) {
-            return hour + '小时 ' + min + '分'
+            return hour + 'hour ' + min + 'min'
         }
-        return day + '天 ' + hour + '小时';
+        return day + 'day ' + hour + 'hour';
     }
 
 
@@ -296,14 +301,14 @@ export class ColumnStore {
     column = {
         name: (kind) => {
             return {
-                dataIndex: ['metadata', 'name'], title: '名称', width: 200,
+                dataIndex: ['metadata', 'name'], title: 'name', width: 200,
                 render: (name) => <Tag color="success"><Link to={`/k8s/${kind}/detail`} onClick={() => { this.rootStore.menuStore.goto(kind, name) }}>{name}</Link></Tag>
             }
         },
         labels: {
-            dataIndex: ['metadata', 'labels'], title: '标签', width: 300, render: this.createLabels
+            dataIndex: ['metadata', 'labels'], title: 'labels', width: 300, render: this.createLabels
         },
-        creationTimestamp: { dataIndex: ['metadata', 'creationTimestamp'], title: '运行时间', width: 100, render: this._calculateAge },
+        creationTimestamp: { dataIndex: ['metadata', 'creationTimestamp'], title: 'runtime', width: 100, render: this._calculateAge },
     }
 
 
@@ -311,22 +316,22 @@ export class ColumnStore {
         this.column.name('no'),
         this.column.labels,
         {
-            dataIndex: ['status', 'conditions'], title: '状态', width: 100,
+            dataIndex: ['status', 'conditions'], title: 'conditions', width: 100,
             render: (value) => value.find(_ => _.type === 'Ready').status === 'True' ? 'Ready' : 'NotReady'
         },
         {
-            dataIndex: ['metadata', 'labels'], title: '角色', width: 100,
+            dataIndex: ['metadata', 'labels'], title: 'role', width: 100,
             render: (value) => toJS(value)['node-role.kubernetes.io/master'] === '' ? 'Master' : '<none>'
         },
         this.column.creationTimestamp,
-        { dataIndex: ['status', 'nodeInfo', 'kubeletVersion'], title: '版本', width: 100 }
+        { dataIndex: ['status', 'nodeInfo', 'kubeletVersion'], title: 'version', width: 100 }
     ]
     //Name Labels Ready Phase  Restarts  Node Age
     podColumns = [
         this.column.name('pod'),
         this.column.labels,
         {
-            dataIndex: ['status', 'containerStatuses'], title: '就绪', width: 100,
+            dataIndex: ['status', 'containerStatuses'], title: 'ready', width: 100,
             render: (value) => {
                 if (!value) {
                     return '0/0';
@@ -338,7 +343,7 @@ export class ColumnStore {
         },
         {
             dataIndex: 'status',
-            title: '状态',
+            title: 'status',
             className: 'podStatus',
             width: 200,
             render: (value) => {
@@ -376,7 +381,7 @@ export class ColumnStore {
             }
 
         },
-        { dataIndex: ['spec', 'nodeName'], title: '所在节点', width: 120 },
+        { dataIndex: ['spec', 'nodeName'], title: 'node', width: 120 },
         this.column.creationTimestamp,
     ]
 
@@ -502,7 +507,7 @@ export class ColumnStore {
         {
             dataIndex: ['spec', 'volumeName'], title: 'Volume', width: 200,
             render: name =>
-                <Tag color="success"><Link to={`/ k8s / pv / detail`} onClick={() => { this.rootStore.menuStore.goto('pv', name) }}>{name}</Link></Tag>
+                <Tag color="success"><Link to={`/k8s/pv/detail`} onClick={() => { this.rootStore.menuStore.goto('pv', name) }}>{name}</Link></Tag>
 
         },
         {
@@ -541,7 +546,7 @@ export class ColumnStore {
                     return ''
                 }
                 const { name, namespace } = v
-                return <Tag color="success"><Link to={`/ k8s / pvc / detail`} onClick={() => { this.rootStore.menuStore.goto('pvc', name, namespace) }}>{name}</Link></Tag>
+                return <Tag color="success"><Link to={`/k8s/pvc/detail`} onClick={() => { this.rootStore.menuStore.goto('pvc', name, namespace) }}>{name}</Link></Tag>
             }
 
         },
@@ -625,7 +630,7 @@ export class ColumnStore {
                     const kind = v.kind
                     const sname = this.rootStore.shortName(kind)
                     const ns = v.namespace
-                    return <Tag color="success"><Link to={`/ k8s / ${sname} /detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link ></Tag >
+                    return <Tag color="success"><Link to={`/k8s/${sname}/detail`} onClick={() => { this.rootStore.menuStore.goto(sname, name, ns) }}>{name}</Link ></Tag >
                 }
                 return name
             }
