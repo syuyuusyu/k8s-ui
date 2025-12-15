@@ -33,7 +33,7 @@ class LogConsole extends Component {
             `${host}/kube/watch/log/${pod.metadata.namespace}/${pod.metadata.name}/${this.props.containerName}`,
             {
                 headers: {
-                    "access-token": sessionStorage.getItem("access-token") || "",
+                    "access_token": sessionStorage.getItem("access_token") || "",
                 },
             }
         );
@@ -75,11 +75,11 @@ class LogConsole extends Component {
                 {/*/>*/}
 
                 <div
-                    style={{ lineHeight: '32px' }}
                     className={`CodeMirror-sizer`}
                     id="code-mirror-editor"
                     dangerouslySetInnerHTML={{ __html: this.state.logText }}
                     style={{
+                        lineHeight: '32px',
                         paddingTop: "10px",
                         paddingLeft: "30px",
                         paddingRight: "30px",

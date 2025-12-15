@@ -32,7 +32,7 @@ class TerminalConsole extends Component {
 
     openterminal() {
         const store = this.props.rootStore.podStore;
-        let url = `${wsUrl}?access-token=${sessionStorage.getItem('access-token') || 'notoken'}&ns=${store.rootStore.columnStore.currentNamespace}&name=${store.currentElement.metadata.name}`;
+        let url = `${wsUrl}?access_token=${sessionStorage.getItem('access_token') || 'notoken'}&ns=${store.rootStore.columnStore.currentNamespace}&name=${store.currentElement.metadata.name}`;
         if (this.props.containerName) {
             url = `${url}&container=${this.props.containerName}`;
         }

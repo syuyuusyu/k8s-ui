@@ -73,7 +73,7 @@ export class ColumnStore {
         }
         this.eventSource = new EventSourcePolyfill(`${host}/kube/watchNs/${this.currentNamespace}`, {
             headers: {
-                'access-token': sessionStorage.getItem('access-token') || ''
+                'access_token': sessionStorage.getItem('access_token') || ''
             }
         })
         this.eventSource.onmessage = result => {
@@ -161,7 +161,7 @@ export class ColumnStore {
         }
         this.eventSource = new EventSourcePolyfill(`${host}/kube/watchAll`, {
             headers: {
-                'access-token': sessionStorage.getItem('access-token') || ''
+                'access_token': sessionStorage.getItem('access_token') || ''
             }
         })
         this.eventSource.onmessage = result => {

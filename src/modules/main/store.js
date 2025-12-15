@@ -12,6 +12,11 @@ export default class MenuStore {
     @observable
     collapsed = false
 
+    @computed
+    get isLogin(){
+        return !!sessionStorage.getItem('access_token')
+    }
+
     @action
     toggleCollapsed = () => {
         this.collapsed = !this.collapsed

@@ -20,7 +20,7 @@ export function request(method, url, body) {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Access-Token': sessionStorage.getItem('access-token') || '',// 从sessionStorage中获取access token
+            'access_token': sessionStorage.getItem('access_token') || '',// 从sessionStorage中获取access token
         },
         data: body,
         params: params
@@ -31,7 +31,7 @@ export function request(method, url, body) {
             window.history.go('/login');
             return Promise.reject('Unauthorized.');
         } else {
-            const token = res.headers['access-token'];
+            const token = res.headers['access_token'];
             if (token) {
                 sessionStorage.setItem('access_token', token);
             }

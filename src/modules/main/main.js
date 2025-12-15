@@ -118,7 +118,6 @@ class Main extends Component {
         store.loadNs()
         let key = this.props.history.location.pathname.split("/")[this.props.history.location.pathname.split("/").length - 1]
         if (key) {
-            console.log(key)
             this.props.rootStore.menuStore.onMenuClick({ key })
         }
     }
@@ -127,6 +126,9 @@ class Main extends Component {
         const store = this.props.rootStore.columnStore;
         const menuStore = this.props.rootStore.menuStore;
         //console.log(toJS(menuStore.currentRoute))
+        if(!menuStore.isLogin){
+            return <div>authorization required</div>
+        }
         const kind = this.props.rootStore.menuStore.currentKind
         return (
             <Layout style={{ height: '100vh' }}>

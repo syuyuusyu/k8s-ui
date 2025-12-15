@@ -9,10 +9,10 @@
 
 const API = window.API;
 
-export let host = 'http://74.48.18.221:9008';
-export let wsUrl = `wss://74.48.18.221:9008/pod-terminal`;
-export let nsUrl = 'http://74.48.18.221:9008/kube/allnamespace'
-export let registryUrl = 'http://192.168.50.28:5000'
+// export let host = 'http://74.48.18.221:9008';
+// export let wsUrl = `ws://74.48.18.221:9008/pod-terminal`;
+// export let nsUrl = 'http://74.48.18.221:9008/kube/allnamespace'
+// export let registryUrl = 'docker.io'
 
 
 // export let host = 'https://www.51bqm.com:4022';
@@ -25,6 +25,11 @@ export let registryUrl = 'http://192.168.50.28:5000'
 // export let nsUrl = 'http://127.0.0.1:9008/kube/allnamespace'
 // export let registryUrl = 'https://swr.cn-north-1.myhuaweicloud.com'
 
+export let host = 'https://www.ufoyy.top:7022';
+export let wsUrl = `wss://www.ufoyy.top:7022/pod-terminal`;
+export let nsUrl = 'https://www.ufoyy.top:7022/kube/allnamespace'
+export let registryUrl = 'docker.io'
+
 
 if (API) {
 	host = API.HOST;
@@ -32,6 +37,9 @@ if (API) {
 	nsUrl = API.HOST + '/kube/allnamespace';
 	if (API.REGISTRY) {
 		registryUrl = API.REGISTRY
+	}
+	if (API.WSURL) {
+		wsUrl = API.WSURL
 	}
 	if (API.NSURL) {
 		nsUrl = API.NSURL
